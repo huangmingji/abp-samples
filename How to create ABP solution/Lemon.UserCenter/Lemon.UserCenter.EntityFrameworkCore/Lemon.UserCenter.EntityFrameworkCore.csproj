@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lemon.UserCenter.Domain\Lemon.UserCenter.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.2" /> -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.2" />
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore" Version="2.2.1" />
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore.MySQL" Version="2.2.1" />
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore.PostgreSQL" Version="2.2.1" />
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore.SQLServer" Version="2.2.1" />
+  </ItemGroup>
+
+</Project>

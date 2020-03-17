@@ -1,0 +1,18 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Lemon.UserCenter.HttpApi.Hosting
+{
+    public class Startup
+    {
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddApplication<UserCenterHttpApiHostingModule>();
+        }
+
+        public void Configure(IApplicationBuilder app)
+        {
+            app.InitializeApplication();
+        }
+    }
+}
