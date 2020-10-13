@@ -23,7 +23,7 @@ namespace Lemon.Account.EntityFrameworkCore.MySQL
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            LemonAccountDbContextModelCreatingExtensions.ConfigureLemonAccount(builder);
+            builder.ConfigureLemonAccount();
             base.OnModelCreating(builder);
         }
 
