@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lemon.Account.EntityFrameworkCore\Lemon.Account.EntityFrameworkCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.8" />
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore" Version="3.2.1" />
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore.PostgreSql" Version="3.2.1" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+</Project>

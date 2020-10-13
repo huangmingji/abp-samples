@@ -1,0 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace Lemon.Account.Application
+{
+    public class CreateRoleDto
+    {
+        [Required(ErrorMessage = "名称不能为空")]
+        public string Name { get; set; }
+    }
+}

@@ -1,0 +1,1573 @@
+2020-10-13 09:44:14.887 +08:00 [INF] Starting web host
+2020-10-13 09:44:16.751 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbMigrationsDbContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL' with options: None
+2020-10-13 09:44:23.813 +08:00 [INF] Executed DbCommand (6,336ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE DATABASE account;
+2020-10-13 09:44:24.707 +08:00 [INF] Executed DbCommand (175ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+2020-10-13 09:44:24.789 +08:00 [INF] Executed DbCommand (19ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE c.relname='__EFMigrationsHistory');
+2020-10-13 09:44:24.808 +08:00 [INF] Executed DbCommand (16ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2020-10-13 09:44:24.840 +08:00 [INF] Applying migration '20201013012310_InitialCreate'.
+2020-10-13 09:44:24.918 +08:00 [INF] Executed DbCommand (12ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE SCHEMA IF NOT EXISTS account;
+2020-10-13 09:44:24.997 +08:00 [INF] Executed DbCommand (78ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE account."PermissionData" (
+    "Id" uuid NOT NULL,
+    "CreationTime" timestamp without time zone NOT NULL,
+    "CreatorId" uuid NULL,
+    "LastModificationTime" timestamp without time zone NULL,
+    "LastModifierId" uuid NULL,
+    "ParentId" uuid NULL,
+    "Name" text NULL,
+    "Permission" text NULL,
+    CONSTRAINT "PK_PermissionData" PRIMARY KEY ("Id")
+);
+2020-10-13 09:44:25.079 +08:00 [INF] Executed DbCommand (81ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE account."RoleData" (
+    "Id" uuid NOT NULL,
+    "ExtraProperties" text NULL,
+    "ConcurrencyStamp" character varying(40) NULL,
+    "CreationTime" timestamp without time zone NOT NULL,
+    "CreatorId" uuid NULL,
+    "LastModificationTime" timestamp without time zone NULL,
+    "LastModifierId" uuid NULL,
+    "Name" text NULL,
+    CONSTRAINT "PK_RoleData" PRIMARY KEY ("Id")
+);
+2020-10-13 09:44:25.282 +08:00 [INF] Executed DbCommand (186ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE account."UserData" (
+    "Id" uuid NOT NULL,
+    "ExtraProperties" text NULL,
+    "ConcurrencyStamp" character varying(40) NULL,
+    "CreationTime" timestamp without time zone NOT NULL,
+    "CreatorId" uuid NULL,
+    "LastModificationTime" timestamp without time zone NULL,
+    "LastModifierId" uuid NULL,
+    "Account" text NULL,
+    "NickName" text NULL,
+    "HeadIcon" text NULL,
+    "Mobile" text NULL,
+    "Email" text NULL,
+    "IsDeleted" boolean NOT NULL DEFAULT FALSE,
+    CONSTRAINT "PK_UserData" PRIMARY KEY ("Id")
+);
+2020-10-13 09:44:25.391 +08:00 [INF] Executed DbCommand (107ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE account."RolePermissionData" (
+    "RoleId" uuid NOT NULL,
+    "Permission" text NOT NULL,
+    CONSTRAINT "PK_RolePermissionData" PRIMARY KEY ("RoleId", "Permission"),
+    CONSTRAINT "FK_RolePermissionData_RoleData_RoleId" FOREIGN KEY ("RoleId") REFERENCES account."RoleData" ("Id") ON DELETE CASCADE
+);
+2020-10-13 09:44:25.480 +08:00 [INF] Executed DbCommand (87ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE account."UserLogOn" (
+    "UserId" uuid NOT NULL,
+    "Password" text NULL,
+    "SecretKey" text NULL,
+    "AllowStartTime" timestamp without time zone NOT NULL,
+    "AllowEndTime" timestamp without time zone NOT NULL,
+    "LockStartTime" timestamp without time zone NOT NULL,
+    "LockEndDate" timestamp without time zone NOT NULL,
+    "FirstVisitTime" timestamp without time zone NOT NULL,
+    "PreviousVisitTime" timestamp without time zone NOT NULL,
+    "LastVisitTime" timestamp without time zone NOT NULL,
+    "ChangPasswordDate" timestamp without time zone NOT NULL,
+    "MultiUserLogin" boolean NOT NULL,
+    "LogonCount" integer NOT NULL,
+    "UserOnline" boolean NOT NULL,
+    CONSTRAINT "PK_UserLogOn" PRIMARY KEY ("UserId"),
+    CONSTRAINT "FK_UserLogOn_UserData_UserId" FOREIGN KEY ("UserId") REFERENCES account."UserData" ("Id") ON DELETE CASCADE
+);
+2020-10-13 09:44:25.551 +08:00 [INF] Executed DbCommand (71ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE account."UserRole" (
+    "Id" uuid NOT NULL,
+    "ExtraProperties" text NULL,
+    "ConcurrencyStamp" character varying(40) NULL,
+    "CreationTime" timestamp without time zone NOT NULL,
+    "CreatorId" uuid NULL,
+    "LastModificationTime" timestamp without time zone NULL,
+    "LastModifierId" uuid NULL,
+    "UserId" uuid NOT NULL,
+    "RoleId" uuid NOT NULL,
+    CONSTRAINT "PK_UserRole" PRIMARY KEY ("Id"),
+    CONSTRAINT "FK_UserRole_RoleData_RoleId" FOREIGN KEY ("RoleId") REFERENCES account."RoleData" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_UserRole_UserData_UserId" FOREIGN KEY ("UserId") REFERENCES account."UserData" ("Id") ON DELETE CASCADE
+);
+2020-10-13 09:44:25.603 +08:00 [INF] Executed DbCommand (52ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_UserData_Account" ON account."UserData" ("Account");
+2020-10-13 09:44:25.634 +08:00 [INF] Executed DbCommand (30ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_UserData_Email" ON account."UserData" ("Email");
+2020-10-13 09:44:25.663 +08:00 [INF] Executed DbCommand (28ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_UserData_Mobile" ON account."UserData" ("Mobile");
+2020-10-13 09:44:25.699 +08:00 [INF] Executed DbCommand (35ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_UserRole_RoleId" ON account."UserRole" ("RoleId");
+2020-10-13 09:44:25.739 +08:00 [INF] Executed DbCommand (38ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_UserRole_UserId" ON account."UserRole" ("UserId");
+2020-10-13 09:44:25.775 +08:00 [INF] Executed DbCommand (35ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_UserRole_RoleId_UserId" ON account."UserRole" ("RoleId", "UserId");
+2020-10-13 09:44:25.797 +08:00 [INF] Executed DbCommand (21ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20201013012310_InitialCreate', '3.1.8');
+2020-10-13 09:44:26.566 +08:00 [INF] User profile is available. Using '/Users/huangmingji/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2020-10-13 09:44:26.690 +08:00 [INF] Loaded ABP modules:
+2020-10-13 09:44:26.690 +08:00 [INF] - Volo.Abp.Validation.AbpValidationAbstractionsModule
+2020-10-13 09:44:26.690 +08:00 [INF] - Volo.Abp.VirtualFileSystem.AbpVirtualFileSystemModule
+2020-10-13 09:44:26.690 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationAbstractionsModule
+2020-10-13 09:44:26.690 +08:00 [INF] - Volo.Abp.Security.AbpSecurityModule
+2020-10-13 09:44:26.690 +08:00 [INF] - Volo.Abp.ObjectExtending.AbpObjectExtendingModule
+2020-10-13 09:44:26.690 +08:00 [INF] - Volo.Abp.Uow.AbpUnitOfWorkModule
+2020-10-13 09:44:26.690 +08:00 [INF] - Volo.Abp.Data.AbpDataModule
+2020-10-13 09:44:26.690 +08:00 [INF] - Volo.Abp.MultiTenancy.AbpMultiTenancyModule
+2020-10-13 09:44:26.690 +08:00 [INF] - Volo.Abp.Settings.AbpSettingsModule
+2020-10-13 09:44:26.690 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationModule
+2020-10-13 09:44:26.690 +08:00 [INF] - Volo.Abp.Validation.AbpValidationModule
+2020-10-13 09:44:26.691 +08:00 [INF] - Lemon.Account.Domain.Shared.LemonAccountDomainSharedModule
+2020-10-13 09:44:26.691 +08:00 [INF] - Volo.Abp.Timing.AbpTimingModule
+2020-10-13 09:44:26.691 +08:00 [INF] - Volo.Abp.Json.AbpJsonModule
+2020-10-13 09:44:26.691 +08:00 [INF] - Volo.Abp.Threading.AbpThreadingModule
+2020-10-13 09:44:26.691 +08:00 [INF] - Volo.Abp.Auditing.AbpAuditingModule
+2020-10-13 09:44:26.691 +08:00 [INF] - Volo.Abp.EventBus.AbpEventBusModule
+2020-10-13 09:44:26.691 +08:00 [INF] - Volo.Abp.Guids.AbpGuidsModule
+2020-10-13 09:44:26.691 +08:00 [INF] - Volo.Abp.ObjectMapping.AbpObjectMappingModule
+2020-10-13 09:44:26.691 +08:00 [INF] - Volo.Abp.Domain.AbpDddDomainModule
+2020-10-13 09:44:26.691 +08:00 [INF] - Lemon.Account.Domain.LemonAccountDomainModule
+2020-10-13 09:44:26.691 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.AbpEntityFrameworkCoreModule
+2020-10-13 09:44:26.691 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.PostgreSql.AbpEntityFrameworkCorePostgreSqlModule
+2020-10-13 09:44:26.691 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.LemonAccountEntityFrameworkCoreModule
+2020-10-13 09:44:26.697 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.DbMigrations.LemonAccountEntityFrameworkCoreDbMigrationsModule
+2020-10-13 09:44:26.697 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationContractsModule
+2020-10-13 09:44:26.697 +08:00 [INF] - Lemon.Account.Application.Contracts.LemonAccountApplicationContractsModule
+2020-10-13 09:44:26.697 +08:00 [INF] - Volo.Abp.Authorization.AbpAuthorizationModule
+2020-10-13 09:44:26.697 +08:00 [INF] - Volo.Abp.Http.AbpHttpAbstractionsModule
+2020-10-13 09:44:26.705 +08:00 [INF] - Volo.Abp.Features.AbpFeaturesModule
+2020-10-13 09:44:26.705 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationModule
+2020-10-13 09:44:26.705 +08:00 [INF] - Volo.Abp.AutoMapper.AbpAutoMapperModule
+2020-10-13 09:44:26.705 +08:00 [INF] - Lemon.Account.Application.LemonAccountApplicationModule
+2020-10-13 09:44:26.705 +08:00 [INF] - Volo.Abp.Minify.AbpMinifyModule
+2020-10-13 09:44:26.707 +08:00 [INF] - Volo.Abp.Http.AbpHttpModule
+2020-10-13 09:44:26.707 +08:00 [INF] - Volo.Abp.UI.AbpUiModule
+2020-10-13 09:44:26.707 +08:00 [INF] - Volo.Abp.AspNetCore.AbpAspNetCoreModule
+2020-10-13 09:44:26.707 +08:00 [INF] - Volo.Abp.ApiVersioning.AbpApiVersioningAbstractionsModule
+2020-10-13 09:44:26.707 +08:00 [INF] - Volo.Abp.AspNetCore.Mvc.AbpAspNetCoreMvcContractsModule
+2020-10-13 09:44:26.707 +08:00 [INF] - Volo.Abp.GlobalFeatures.AbpGlobalFeaturesModule
+2020-10-13 09:44:26.707 +08:00 [INF] - Volo.Abp.AspNetCore.Mvc.AbpAspNetCoreMvcModule
+2020-10-13 09:44:26.707 +08:00 [INF] - Lemon.Account.HttpApi.LemonAccountHttpApiModule
+2020-10-13 09:44:26.707 +08:00 [INF] - Volo.Abp.Castle.AbpCastleCoreModule
+2020-10-13 09:44:26.708 +08:00 [INF] - Volo.Abp.Autofac.AbpAutofacModule
+2020-10-13 09:44:26.708 +08:00 [INF] - Volo.Abp.AspNetCore.Serilog.AbpAspNetCoreSerilogModule
+2020-10-13 09:44:26.708 +08:00 [INF] - Lemon.Account.Host.LemonAccountHostModule
+2020-10-13 09:44:27.103 +08:00 [FTL] Application startup exception
+Volo.Abp.AbpInitializationException: An error occurred during the initialize Volo.Abp.Modularity.OnPreApplicationInitializationModuleLifecycleContributor phase of the module Volo.Abp.AutoMapper.AbpAutoMapperModule, Volo.Abp.AutoMapper, Version=3.2.1.0, Culture=neutral, PublicKeyToken=null: 
+Unmapped members were found. Review the types and members below.
+Add a custom mapping expression, ignore, add a custom resolver, or modify the source/destination type
+For no matching constructor, add a no-arg ctor, add optional arguments, or map all of the constructor parameters
+=============================================================================
+UserRole -> UserRoleDto (Destination member list)
+Lemon.Account.Domain.Users.UserRole -> Lemon.Account.Application.UserRoleDto (Destination member list)
+
+Unmapped properties:
+TenantId
+. See the inner exception for details.
+ ---> AutoMapper.AutoMapperConfigurationException: 
+Unmapped members were found. Review the types and members below.
+Add a custom mapping expression, ignore, add a custom resolver, or modify the source/destination type
+For no matching constructor, add a no-arg ctor, add optional arguments, or map all of the constructor parameters
+=============================================================================
+UserRole -> UserRoleDto (Destination member list)
+Lemon.Account.Domain.Users.UserRole -> Lemon.Account.Application.UserRoleDto (Destination member list)
+
+Unmapped properties:
+TenantId
+
+   at Volo.Abp.AutoMapper.AbpAutoMapperModule.<>c__DisplayClass2_0.<CreateMappings>g__ValidateAll|1(IConfigurationProvider config)
+   at Volo.Abp.AutoMapper.AbpAutoMapperModule.CreateMappings(IServiceProvider serviceProvider)
+   at Volo.Abp.AutoMapper.AbpAutoMapperModule.OnPreApplicationInitialization(ApplicationInitializationContext context)
+   at Volo.Abp.Modularity.OnPreApplicationInitializationModuleLifecycleContributor.Initialize(ApplicationInitializationContext context, IAbpModule module)
+   at Volo.Abp.Modularity.ModuleManager.InitializeModules(ApplicationInitializationContext context)
+   --- End of inner exception stack trace ---
+   at Volo.Abp.Modularity.ModuleManager.InitializeModules(ApplicationInitializationContext context)
+   at Volo.Abp.AbpApplicationBase.InitializeModules()
+   at Volo.Abp.AbpApplicationWithExternalServiceProvider.Initialize(IServiceProvider serviceProvider)
+   at Microsoft.AspNetCore.Builder.AbpApplicationBuilderExtensions.InitializeApplication(IApplicationBuilder app)
+   at Lemon.Account.Host.Startup.Configure(IApplicationBuilder app) in /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.Host/Startup.cs:line 22
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Object[] arguments, Signature sig, Boolean constructor, Boolean wrapExceptions)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at Microsoft.AspNetCore.Hosting.ConfigureBuilder.Invoke(Object instance, IApplicationBuilder builder)
+   at Microsoft.AspNetCore.Hosting.ConfigureBuilder.<>c__DisplayClass4_0.<Build>b__0(IApplicationBuilder builder)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostBuilder.<>c__DisplayClass13_0.<UseStartup>b__2(IApplicationBuilder app)
+   at Microsoft.AspNetCore.Mvc.Filters.MiddlewareFilterBuilderStartupFilter.<>c__DisplayClass0_0.<Configure>g__MiddlewareFilterBuilder|0(IApplicationBuilder builder)
+   at Microsoft.AspNetCore.HostFilteringStartupFilter.<>c__DisplayClass0_0.<Configure>b__0(IApplicationBuilder app)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+2020-10-13 09:44:27.153 +08:00 [FTL] Host terminated unexpectedly
+Volo.Abp.AbpInitializationException: An error occurred during the initialize Volo.Abp.Modularity.OnPreApplicationInitializationModuleLifecycleContributor phase of the module Volo.Abp.AutoMapper.AbpAutoMapperModule, Volo.Abp.AutoMapper, Version=3.2.1.0, Culture=neutral, PublicKeyToken=null: 
+Unmapped members were found. Review the types and members below.
+Add a custom mapping expression, ignore, add a custom resolver, or modify the source/destination type
+For no matching constructor, add a no-arg ctor, add optional arguments, or map all of the constructor parameters
+=============================================================================
+UserRole -> UserRoleDto (Destination member list)
+Lemon.Account.Domain.Users.UserRole -> Lemon.Account.Application.UserRoleDto (Destination member list)
+
+Unmapped properties:
+TenantId
+. See the inner exception for details.
+ ---> AutoMapper.AutoMapperConfigurationException: 
+Unmapped members were found. Review the types and members below.
+Add a custom mapping expression, ignore, add a custom resolver, or modify the source/destination type
+For no matching constructor, add a no-arg ctor, add optional arguments, or map all of the constructor parameters
+=============================================================================
+UserRole -> UserRoleDto (Destination member list)
+Lemon.Account.Domain.Users.UserRole -> Lemon.Account.Application.UserRoleDto (Destination member list)
+
+Unmapped properties:
+TenantId
+
+   at Volo.Abp.AutoMapper.AbpAutoMapperModule.<>c__DisplayClass2_0.<CreateMappings>g__ValidateAll|1(IConfigurationProvider config)
+   at Volo.Abp.AutoMapper.AbpAutoMapperModule.CreateMappings(IServiceProvider serviceProvider)
+   at Volo.Abp.AutoMapper.AbpAutoMapperModule.OnPreApplicationInitialization(ApplicationInitializationContext context)
+   at Volo.Abp.Modularity.OnPreApplicationInitializationModuleLifecycleContributor.Initialize(ApplicationInitializationContext context, IAbpModule module)
+   at Volo.Abp.Modularity.ModuleManager.InitializeModules(ApplicationInitializationContext context)
+   --- End of inner exception stack trace ---
+   at Volo.Abp.Modularity.ModuleManager.InitializeModules(ApplicationInitializationContext context)
+   at Volo.Abp.AbpApplicationBase.InitializeModules()
+   at Volo.Abp.AbpApplicationWithExternalServiceProvider.Initialize(IServiceProvider serviceProvider)
+   at Microsoft.AspNetCore.Builder.AbpApplicationBuilderExtensions.InitializeApplication(IApplicationBuilder app)
+   at Lemon.Account.Host.Startup.Configure(IApplicationBuilder app) in /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.Host/Startup.cs:line 22
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Object[] arguments, Signature sig, Boolean constructor, Boolean wrapExceptions)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at Microsoft.AspNetCore.Hosting.ConfigureBuilder.Invoke(Object instance, IApplicationBuilder builder)
+   at Microsoft.AspNetCore.Hosting.ConfigureBuilder.<>c__DisplayClass4_0.<Build>b__0(IApplicationBuilder builder)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostBuilder.<>c__DisplayClass13_0.<UseStartup>b__2(IApplicationBuilder app)
+   at Microsoft.AspNetCore.Mvc.Filters.MiddlewareFilterBuilderStartupFilter.<>c__DisplayClass0_0.<Configure>g__MiddlewareFilterBuilder|0(IApplicationBuilder builder)
+   at Microsoft.AspNetCore.HostFilteringStartupFilter.<>c__DisplayClass0_0.<Configure>b__0(IApplicationBuilder app)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
+   at Lemon.Account.Host.Program.Main(String[] args) in /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.Host/Program.cs:line 29
+2020-10-13 09:46:35.129 +08:00 [INF] Starting web host
+2020-10-13 09:46:37.251 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbMigrationsDbContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL' with options: None
+2020-10-13 09:46:37.990 +08:00 [INF] Executed DbCommand (27ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE c.relname='__EFMigrationsHistory');
+2020-10-13 09:46:38.047 +08:00 [INF] Executed DbCommand (7ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE c.relname='__EFMigrationsHistory');
+2020-10-13 09:46:38.109 +08:00 [INF] Executed DbCommand (14ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2020-10-13 09:46:38.132 +08:00 [INF] No migrations were applied. The database is already up to date.
+2020-10-13 09:46:38.778 +08:00 [INF] User profile is available. Using '/Users/huangmingji/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2020-10-13 09:46:38.883 +08:00 [INF] Loaded ABP modules:
+2020-10-13 09:46:38.883 +08:00 [INF] - Volo.Abp.Validation.AbpValidationAbstractionsModule
+2020-10-13 09:46:38.884 +08:00 [INF] - Volo.Abp.VirtualFileSystem.AbpVirtualFileSystemModule
+2020-10-13 09:46:38.884 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationAbstractionsModule
+2020-10-13 09:46:38.884 +08:00 [INF] - Volo.Abp.Security.AbpSecurityModule
+2020-10-13 09:46:38.884 +08:00 [INF] - Volo.Abp.ObjectExtending.AbpObjectExtendingModule
+2020-10-13 09:46:38.884 +08:00 [INF] - Volo.Abp.Uow.AbpUnitOfWorkModule
+2020-10-13 09:46:38.884 +08:00 [INF] - Volo.Abp.Data.AbpDataModule
+2020-10-13 09:46:38.884 +08:00 [INF] - Volo.Abp.MultiTenancy.AbpMultiTenancyModule
+2020-10-13 09:46:38.884 +08:00 [INF] - Volo.Abp.Settings.AbpSettingsModule
+2020-10-13 09:46:38.884 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationModule
+2020-10-13 09:46:38.884 +08:00 [INF] - Volo.Abp.Validation.AbpValidationModule
+2020-10-13 09:46:38.884 +08:00 [INF] - Lemon.Account.Domain.Shared.LemonAccountDomainSharedModule
+2020-10-13 09:46:38.885 +08:00 [INF] - Volo.Abp.Timing.AbpTimingModule
+2020-10-13 09:46:38.886 +08:00 [INF] - Volo.Abp.Json.AbpJsonModule
+2020-10-13 09:46:38.886 +08:00 [INF] - Volo.Abp.Threading.AbpThreadingModule
+2020-10-13 09:46:38.886 +08:00 [INF] - Volo.Abp.Auditing.AbpAuditingModule
+2020-10-13 09:46:38.910 +08:00 [INF] - Volo.Abp.EventBus.AbpEventBusModule
+2020-10-13 09:46:38.910 +08:00 [INF] - Volo.Abp.Guids.AbpGuidsModule
+2020-10-13 09:46:38.917 +08:00 [INF] - Volo.Abp.ObjectMapping.AbpObjectMappingModule
+2020-10-13 09:46:38.921 +08:00 [INF] - Volo.Abp.Domain.AbpDddDomainModule
+2020-10-13 09:46:38.922 +08:00 [INF] - Lemon.Account.Domain.LemonAccountDomainModule
+2020-10-13 09:46:38.922 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.AbpEntityFrameworkCoreModule
+2020-10-13 09:46:38.922 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.PostgreSql.AbpEntityFrameworkCorePostgreSqlModule
+2020-10-13 09:46:38.922 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.LemonAccountEntityFrameworkCoreModule
+2020-10-13 09:46:38.922 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.DbMigrations.LemonAccountEntityFrameworkCoreDbMigrationsModule
+2020-10-13 09:46:39.000 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationContractsModule
+2020-10-13 09:46:39.003 +08:00 [INF] - Lemon.Account.Application.Contracts.LemonAccountApplicationContractsModule
+2020-10-13 09:46:39.003 +08:00 [INF] - Volo.Abp.Authorization.AbpAuthorizationModule
+2020-10-13 09:46:39.003 +08:00 [INF] - Volo.Abp.Http.AbpHttpAbstractionsModule
+2020-10-13 09:46:39.003 +08:00 [INF] - Volo.Abp.Features.AbpFeaturesModule
+2020-10-13 09:46:39.005 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationModule
+2020-10-13 09:46:39.005 +08:00 [INF] - Volo.Abp.AutoMapper.AbpAutoMapperModule
+2020-10-13 09:46:39.005 +08:00 [INF] - Lemon.Account.Application.LemonAccountApplicationModule
+2020-10-13 09:46:39.005 +08:00 [INF] - Volo.Abp.Minify.AbpMinifyModule
+2020-10-13 09:46:39.005 +08:00 [INF] - Volo.Abp.Http.AbpHttpModule
+2020-10-13 09:46:39.009 +08:00 [INF] - Volo.Abp.UI.AbpUiModule
+2020-10-13 09:46:39.009 +08:00 [INF] - Volo.Abp.AspNetCore.AbpAspNetCoreModule
+2020-10-13 09:46:39.009 +08:00 [INF] - Volo.Abp.ApiVersioning.AbpApiVersioningAbstractionsModule
+2020-10-13 09:46:39.009 +08:00 [INF] - Volo.Abp.AspNetCore.Mvc.AbpAspNetCoreMvcContractsModule
+2020-10-13 09:46:39.009 +08:00 [INF] - Volo.Abp.GlobalFeatures.AbpGlobalFeaturesModule
+2020-10-13 09:46:39.010 +08:00 [INF] - Volo.Abp.AspNetCore.Mvc.AbpAspNetCoreMvcModule
+2020-10-13 09:46:39.012 +08:00 [INF] - Lemon.Account.HttpApi.LemonAccountHttpApiModule
+2020-10-13 09:46:39.013 +08:00 [INF] - Volo.Abp.Castle.AbpCastleCoreModule
+2020-10-13 09:46:39.013 +08:00 [INF] - Volo.Abp.Autofac.AbpAutofacModule
+2020-10-13 09:46:39.013 +08:00 [INF] - Volo.Abp.AspNetCore.Serilog.AbpAspNetCoreSerilogModule
+2020-10-13 09:46:39.013 +08:00 [INF] - Lemon.Account.Host.LemonAccountHostModule
+2020-10-13 09:46:40.209 +08:00 [INF] Initialized all ABP modules.
+2020-10-13 09:46:40.280 +08:00 [INF] Now listening on: http://localhost:5000
+2020-10-13 09:46:40.280 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2020-10-13 09:46:40.290 +08:00 [INF] Hosting environment: Development
+2020-10-13 09:46:40.290 +08:00 [INF] Content root path: /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.Host
+2020-10-13 09:46:43.476 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/  
+2020-10-13 09:46:44.044 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 09:46:44.173 +08:00 [INF] Request finished in 711.4325ms 404 
+2020-10-13 09:46:49.875 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/swagger/index.html  
+2020-10-13 09:46:49.901 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 09:46:49.978 +08:00 [INF] Request finished in 102.6229ms 200 text/html;charset=utf-8
+2020-10-13 09:46:50.052 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/swagger/swagger-ui-bundle.js  
+2020-10-13 09:46:50.052 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/swagger/swagger-ui.css  
+2020-10-13 09:46:50.055 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 09:46:50.055 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 09:46:50.089 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/swagger/swagger-ui-standalone-preset.js  
+2020-10-13 09:46:50.090 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 09:46:50.169 +08:00 [INF] Sending file. Request path: '/swagger-ui-standalone-preset.js'. Physical path: 'N/A'
+2020-10-13 09:46:50.178 +08:00 [INF] Request finished in 89.6789ms 200 application/javascript
+2020-10-13 09:46:50.187 +08:00 [INF] Sending file. Request path: '/swagger-ui.css'. Physical path: 'N/A'
+2020-10-13 09:46:50.188 +08:00 [INF] Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+2020-10-13 09:46:50.192 +08:00 [INF] Request finished in 139.3008ms 200 application/javascript
+2020-10-13 09:46:50.192 +08:00 [INF] Request finished in 140.3309ms 200 text/css
+2020-10-13 09:46:50.774 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/swagger/v1/swagger.json  
+2020-10-13 09:46:50.778 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 09:46:51.063 +08:00 [INF] Request finished in 289.3378ms 200 application/json;charset=utf-8
+2020-10-13 09:47:08.854 +08:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/register application/json-patch+json 75
+2020-10-13 09:47:08.860 +08:00 [INF] CORS policy execution failed.
+2020-10-13 09:47:08.861 +08:00 [INF] Request origin http://localhost:5000 does not have permission to access the resource.
+2020-10-13 09:47:08.867 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 09:47:08.869 +08:00 [INF] Executing endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 09:47:09.089 +08:00 [INF] Route matched with {action = "Register", controller = "Account", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] RegisterAsync(Lemon.Account.Application.CreateUserDto) on controller Lemon.Account.HttpApi.Controllers.AccountController (Lemon.Account.HttpApi).
+2020-10-13 09:47:10.039 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL' with options: None
+2020-10-13 09:47:10.583 +08:00 [INF] Executed DbCommand (89ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?', @p2='?', @p3='?' (DbType = DateTime), @p4='?' (DbType = Guid), @p5='?', @p6='?', @p7='?', @p8='?' (DbType = DateTime), @p9='?' (DbType = Guid), @p10='?', @p11='?'], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO account."UserData" ("Id", "Account", "ConcurrencyStamp", "CreationTime", "CreatorId", "Email", "ExtraProperties", "HeadIcon", "LastModificationTime", "LastModifierId", "Mobile", "NickName")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)
+RETURNING "IsDeleted";
+2020-10-13 09:47:10.655 +08:00 [INF] Executed DbCommand (34ms) [Parameters=[@p12='?' (DbType = Guid), @p13='?' (DbType = DateTime), @p14='?' (DbType = DateTime), @p15='?' (DbType = DateTime), @p16='?' (DbType = DateTime), @p17='?' (DbType = DateTime), @p18='?' (DbType = DateTime), @p19='?' (DbType = DateTime), @p20='?' (DbType = Int32), @p21='?' (DbType = Boolean), @p22='?', @p23='?' (DbType = DateTime), @p24='?', @p25='?' (DbType = Boolean)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO account."UserLogOn" ("UserId", "AllowEndTime", "AllowStartTime", "ChangPasswordDate", "FirstVisitTime", "LastVisitTime", "LockEndDate", "LockStartTime", "LogonCount", "MultiUserLogin", "Password", "PreviousVisitTime", "SecretKey", "UserOnline")
+VALUES (@p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25);
+2020-10-13 09:47:10.755 +08:00 [INF] Executing ObjectResult, writing value of type 'Lemon.Account.Application.UserDto'.
+2020-10-13 09:47:10.829 +08:00 [INF] Executed action Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi) in 1732.2419ms
+2020-10-13 09:47:10.986 +08:00 [INF] Executed endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 09:47:10.992 +08:00 [INF] Request finished in 2137.9477ms 200 application/json; charset=utf-8
+2020-10-13 09:47:16.675 +08:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/register application/json-patch+json 75
+2020-10-13 09:47:16.677 +08:00 [INF] CORS policy execution failed.
+2020-10-13 09:47:16.677 +08:00 [INF] Request origin http://localhost:5000 does not have permission to access the resource.
+2020-10-13 09:47:16.680 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 09:47:16.681 +08:00 [INF] Executing endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 09:47:16.682 +08:00 [INF] Route matched with {action = "Register", controller = "Account", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] RegisterAsync(Lemon.Account.Application.CreateUserDto) on controller Lemon.Account.HttpApi.Controllers.AccountController (Lemon.Account.HttpApi).
+2020-10-13 09:47:16.802 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL' with options: None
+2020-10-13 09:47:16.828 +08:00 [ERR] Failed executing DbCommand (12ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?', @p2='?', @p3='?' (DbType = DateTime), @p4='?' (DbType = Guid), @p5='?', @p6='?', @p7='?', @p8='?' (DbType = DateTime), @p9='?' (DbType = Guid), @p10='?', @p11='?'], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO account."UserData" ("Id", "Account", "ConcurrencyStamp", "CreationTime", "CreatorId", "Email", "ExtraProperties", "HeadIcon", "LastModificationTime", "LastModifierId", "Mobile", "NickName")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)
+RETURNING "IsDeleted";
+2020-10-13 09:47:16.895 +08:00 [ERR] An exception occurred in the database while saving changes for context type 'Lemon.Account.EntityFrameworkCore.AccountDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while updating the entries. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "IX_UserData_Email"
+   at Npgsql.NpgsqlConnector.<>c__DisplayClass160_0.<<DoReadMessage>g__ReadMessageLong|0>d.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at Npgsql.NpgsqlConnector.<>c__DisplayClass160_0.<<DoReadMessage>g__ReadMessageLong|0>d.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming)
+   at Npgsql.NpgsqlCommand.ExecuteReaderAsync(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "IX_UserData_Email"
+    Detail: Key ("Email")=(user@example.com) already exists.
+    SchemaName: account
+    TableName: UserData
+    ConstraintName: IX_UserData_Email
+    File: nbtinsert.c
+    Line: 534
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(DbContext _, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while updating the entries. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "IX_UserData_Email"
+   at Npgsql.NpgsqlConnector.<>c__DisplayClass160_0.<<DoReadMessage>g__ReadMessageLong|0>d.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at Npgsql.NpgsqlConnector.<>c__DisplayClass160_0.<<DoReadMessage>g__ReadMessageLong|0>d.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming)
+   at Npgsql.NpgsqlCommand.ExecuteReaderAsync(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "IX_UserData_Email"
+    Detail: Key ("Email")=(user@example.com) already exists.
+    SchemaName: account
+    TableName: UserData
+    ConstraintName: IX_UserData_Email
+    File: nbtinsert.c
+    Line: 534
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(DbContext _, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2020-10-13 09:47:17.079 +08:00 [ERR] ---------- RemoteServiceErrorInfo ----------
+{
+  "code": null,
+  "message": "An internal error occurred during your request!",
+  "details": null,
+  "data": {},
+  "validationErrors": null
+}
+
+2020-10-13 09:47:17.081 +08:00 [ERR] An error occurred while updating the entries. See the inner exception for details.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while updating the entries. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "IX_UserData_Email"
+   at Npgsql.NpgsqlConnector.<>c__DisplayClass160_0.<<DoReadMessage>g__ReadMessageLong|0>d.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at Npgsql.NpgsqlConnector.<>c__DisplayClass160_0.<<DoReadMessage>g__ReadMessageLong|0>d.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming)
+   at Npgsql.NpgsqlCommand.ExecuteReaderAsync(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "IX_UserData_Email"
+    Detail: Key ("Email")=(user@example.com) already exists.
+    SchemaName: account
+    TableName: UserData
+    ConstraintName: IX_UserData_Email
+    File: nbtinsert.c
+    Line: 534
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(DbContext _, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Volo.Abp.EntityFrameworkCore.AbpDbContext`1.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Volo.Abp.Uow.UnitOfWork.SaveChangesAsync(CancellationToken cancellationToken)
+   at Volo.Abp.Uow.UnitOfWork.CompleteAsync(CancellationToken cancellationToken)
+   at Volo.Abp.AspNetCore.Mvc.Uow.AbpUowActionFilter.OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|25_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+2020-10-13 09:47:17.153 +08:00 [INF] Executing ObjectResult, writing value of type 'Volo.Abp.Http.RemoteServiceErrorResponse'.
+2020-10-13 09:47:17.182 +08:00 [INF] Executed action Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi) in 497.1357ms
+2020-10-13 09:47:17.205 +08:00 [INF] Executed endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 09:47:17.208 +08:00 [INF] Request finished in 532.2039ms 500 application/json; charset=utf-8
+2020-10-13 09:47:22.882 +08:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/register application/json-patch+json 75
+2020-10-13 09:47:22.886 +08:00 [INF] CORS policy execution failed.
+2020-10-13 09:47:22.887 +08:00 [INF] Request origin http://localhost:5000 does not have permission to access the resource.
+2020-10-13 09:47:22.890 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 09:47:22.892 +08:00 [INF] Executing endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 09:47:22.899 +08:00 [INF] Route matched with {action = "Register", controller = "Account", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] RegisterAsync(Lemon.Account.Application.CreateUserDto) on controller Lemon.Account.HttpApi.Controllers.AccountController (Lemon.Account.HttpApi).
+2020-10-13 09:47:23.009 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL' with options: None
+2020-10-13 09:47:23.032 +08:00 [ERR] Failed executing DbCommand (9ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?', @p2='?', @p3='?' (DbType = DateTime), @p4='?' (DbType = Guid), @p5='?', @p6='?', @p7='?', @p8='?' (DbType = DateTime), @p9='?' (DbType = Guid), @p10='?', @p11='?'], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO account."UserData" ("Id", "Account", "ConcurrencyStamp", "CreationTime", "CreatorId", "Email", "ExtraProperties", "HeadIcon", "LastModificationTime", "LastModifierId", "Mobile", "NickName")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)
+RETURNING "IsDeleted";
+2020-10-13 09:47:23.036 +08:00 [ERR] An exception occurred in the database while saving changes for context type 'Lemon.Account.EntityFrameworkCore.AccountDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while updating the entries. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "IX_UserData_Email"
+   at Npgsql.NpgsqlConnector.<>c__DisplayClass160_0.<<DoReadMessage>g__ReadMessageLong|0>d.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at Npgsql.NpgsqlConnector.<>c__DisplayClass160_0.<<DoReadMessage>g__ReadMessageLong|0>d.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming)
+   at Npgsql.NpgsqlCommand.ExecuteReaderAsync(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "IX_UserData_Email"
+    Detail: Key ("Email")=(user@example.com) already exists.
+    SchemaName: account
+    TableName: UserData
+    ConstraintName: IX_UserData_Email
+    File: nbtinsert.c
+    Line: 534
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(DbContext _, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while updating the entries. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "IX_UserData_Email"
+   at Npgsql.NpgsqlConnector.<>c__DisplayClass160_0.<<DoReadMessage>g__ReadMessageLong|0>d.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at Npgsql.NpgsqlConnector.<>c__DisplayClass160_0.<<DoReadMessage>g__ReadMessageLong|0>d.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming)
+   at Npgsql.NpgsqlCommand.ExecuteReaderAsync(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "IX_UserData_Email"
+    Detail: Key ("Email")=(user@example.com) already exists.
+    SchemaName: account
+    TableName: UserData
+    ConstraintName: IX_UserData_Email
+    File: nbtinsert.c
+    Line: 534
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(DbContext _, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2020-10-13 09:47:23.074 +08:00 [ERR] ---------- RemoteServiceErrorInfo ----------
+{
+  "code": null,
+  "message": "An internal error occurred during your request!",
+  "details": null,
+  "data": {},
+  "validationErrors": null
+}
+
+2020-10-13 09:47:23.074 +08:00 [ERR] An error occurred while updating the entries. See the inner exception for details.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while updating the entries. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "IX_UserData_Email"
+   at Npgsql.NpgsqlConnector.<>c__DisplayClass160_0.<<DoReadMessage>g__ReadMessageLong|0>d.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at Npgsql.NpgsqlConnector.<>c__DisplayClass160_0.<<DoReadMessage>g__ReadMessageLong|0>d.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming)
+   at Npgsql.NpgsqlCommand.ExecuteReaderAsync(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "IX_UserData_Email"
+    Detail: Key ("Email")=(user@example.com) already exists.
+    SchemaName: account
+    TableName: UserData
+    ConstraintName: IX_UserData_Email
+    File: nbtinsert.c
+    Line: 534
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(DbContext _, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Volo.Abp.EntityFrameworkCore.AbpDbContext`1.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Volo.Abp.Uow.UnitOfWork.SaveChangesAsync(CancellationToken cancellationToken)
+   at Volo.Abp.Uow.UnitOfWork.CompleteAsync(CancellationToken cancellationToken)
+   at Volo.Abp.AspNetCore.Mvc.Uow.AbpUowActionFilter.OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Ta2020-10-13 09:50:44.486 +08:00 [INF] Starting web host
+2020-10-13 09:50:46.648 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbMigrationsDbContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL' with options: None
+2020-10-13 09:50:48.197 +08:00 [INF] Executed DbCommand (82ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE c.relname='__EFMigrationsHistory');
+2020-10-13 09:50:48.315 +08:00 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE c.relname='__EFMigrationsHistory');
+2020-10-13 09:50:48.396 +08:00 [INF] Executed DbCommand (27ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2020-10-13 09:50:48.486 +08:00 [INF] No migrations were applied. The database is already up to date.
+2020-10-13 09:50:49.244 +08:00 [INF] User profile is available. Using '/Users/huangmingji/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2020-10-13 09:50:49.366 +08:00 [INF] Loaded ABP modules:
+2020-10-13 09:50:49.367 +08:00 [INF] - Volo.Abp.Validation.AbpValidationAbstractionsModule
+2020-10-13 09:50:49.367 +08:00 [INF] - Volo.Abp.VirtualFileSystem.AbpVirtualFileSystemModule
+2020-10-13 09:50:49.367 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationAbstractionsModule
+2020-10-13 09:50:49.368 +08:00 [INF] - Volo.Abp.Security.AbpSecurityModule
+2020-10-13 09:50:49.368 +08:00 [INF] - Volo.Abp.ObjectExtending.AbpObjectExtendingModule
+2020-10-13 09:50:49.368 +08:00 [INF] - Volo.Abp.Uow.AbpUnitOfWorkModule
+2020-10-13 09:50:49.368 +08:00 [INF] - Volo.Abp.Data.AbpDataModule
+2020-10-13 09:50:49.368 +08:00 [INF] - Volo.Abp.MultiTenancy.AbpMultiTenancyModule
+2020-10-13 09:50:49.368 +08:00 [INF] - Volo.Abp.Settings.AbpSettingsModule
+2020-10-13 09:50:49.368 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationModule
+2020-10-13 09:50:49.368 +08:00 [INF] - Volo.Abp.Validation.AbpValidationModule
+2020-10-13 09:50:49.389 +08:00 [INF] - Lemon.Account.Domain.Shared.LemonAccountDomainSharedModule
+2020-10-13 09:50:49.398 +08:00 [INF] - Volo.Abp.Timing.AbpTimingModule
+2020-10-13 09:50:49.398 +08:00 [INF] - Volo.Abp.Json.AbpJsonModule
+2020-10-13 09:50:49.398 +08:00 [INF] - Volo.Abp.Threading.AbpThreadingModule
+2020-10-13 09:50:49.399 +08:00 [INF] - Volo.Abp.Auditing.AbpAuditingModule
+2020-10-13 09:50:49.399 +08:00 [INF] - Volo.Abp.EventBus.AbpEventBusModule
+2020-10-13 09:50:49.421 +08:00 [INF] - Volo.Abp.Guids.AbpGuidsModule
+2020-10-13 09:50:49.422 +08:00 [INF] - Volo.Abp.ObjectMapping.AbpObjectMappingModule
+2020-10-13 09:50:49.423 +08:00 [INF] - Volo.Abp.Domain.AbpDddDomainModule
+2020-10-13 09:50:49.423 +08:00 [INF] - Lemon.Account.Domain.LemonAccountDomainModule
+2020-10-13 09:50:49.423 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.AbpEntityFrameworkCoreModule
+2020-10-13 09:50:49.423 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.PostgreSql.AbpEntityFrameworkCorePostgreSqlModule
+2020-10-13 09:50:49.423 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.LemonAccountEntityFrameworkCoreModule
+2020-10-13 09:50:49.423 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.DbMigrations.LemonAccountEntityFrameworkCoreDbMigrationsModule
+2020-10-13 09:50:49.424 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationContractsModule
+2020-10-13 09:50:49.424 +08:00 [INF] - Lemon.Account.Application.Contracts.LemonAccountApplicationContractsModule
+2020-10-13 09:50:49.424 +08:00 [INF] - Volo.Abp.Authorization.AbpAuthorizationModule
+2020-10-13 09:50:49.425 +08:00 [INF] - Volo.Abp.Http.AbpHttpAbstractionsModule
+2020-10-13 09:50:49.493 +08:00 [INF] - Volo.Abp.Features.AbpFeaturesModule
+2020-10-13 09:50:49.493 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationModule
+2020-10-13 09:50:49.504 +08:00 [INF] - Volo.Abp.AutoMapper.AbpAutoMapperModule
+2020-10-13 09:50:49.504 +2020-10-13 09:51:18.659 +08:00 [INF] Starting web host
+2020-10-13 09:51:20.351 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbMigrationsDbContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL' with options: None
+2020-10-13 09:51:21.320 +08:00 [INF] Executed DbCommand (26ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE c.relname='__EFMigrationsHistory');
+2020-10-13 09:51:21.360 +08:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE c.relname='__EFMigrationsHistory');
+2020-10-13 09:51:21.382 +08:00 [INF] Executed DbCommand (9ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2020-10-13 09:51:21.400 +08:00 [INF] No migrations were applied. The database is already up to date.
+2020-10-13 09:51:21.873 +08:00 [INF] User profile is available. Using '/Users/huangmingji/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2020-10-13 09:51:21.954 +08:00 [INF] Loaded ABP modules:
+2020-10-13 09:51:21.954 +08:00 [INF] - Volo.Abp.Validation.AbpValidationAbstractionsModule
+2020-10-13 09:51:21.954 +08:00 [INF] - Volo.Abp.VirtualFileSystem.AbpVirtualFileSystemModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationAbstractionsModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Volo.Abp.Security.AbpSecurityModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Volo.Abp.ObjectExtending.AbpObjectExtendingModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Volo.Abp.Uow.AbpUnitOfWorkModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Volo.Abp.Data.AbpDataModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Volo.Abp.MultiTenancy.AbpMultiTenancyModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Volo.Abp.Settings.AbpSettingsModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Volo.Abp.Validation.AbpValidationModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Lemon.Account.Domain.Shared.LemonAccountDomainSharedModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Volo.Abp.Timing.AbpTimingModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Volo.Abp.Json.AbpJsonModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Volo.Abp.Threading.AbpThreadingModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Volo.Abp.Auditing.AbpAuditingModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Volo.Abp.EventBus.AbpEventBusModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Volo.Abp.Guids.AbpGuidsModule
+2020-10-13 09:51:21.955 +08:00 [INF] - Volo.Abp.ObjectMapping.AbpObjectMappingModule
+2020-10-13 09:51:21.956 +08:00 [INF] - Volo.Abp.Domain.AbpDddDomainModule
+2020-10-13 09:51:21.956 +08:00 [INF] - Lemon.Account.Domain.LemonAccountDomainModule
+2020-10-13 09:51:21.956 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.AbpEntityFrameworkCoreModule
+2020-10-13 09:51:21.956 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.PostgreSql.AbpEntityFrameworkCorePostgreSqlModule
+2020-10-13 09:51:21.956 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.LemonAccountEntityFrameworkCoreModule
+2020-10-13 09:51:21.956 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.DbMigrations.LemonAccountEntityFrameworkCoreDbMigrationsModule
+2020-10-13 09:51:21.956 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationContractsModule
+2020-10-13 09:51:21.956 +08:00 [INF] - Lemon.Account.Application.Contracts.LemonAccountApplicationContractsModule
+2020-10-13 09:51:21.956 +08:00 [INF] - Volo.Abp.Authorization.AbpAuthorizationModule
+2020-10-13 09:51:21.956 +08:00 [INF] - Volo.Abp.Http.AbpHttpAbstractionsModule
+2020-10-13 09:51:21.956 +08:00 [INF] - Volo.Abp.Features.AbpFeaturesModule
+2020-10-13 09:51:21.956 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationModule
+2020-10-13 09:51:21.956 +08:00 [INF] - Volo.Abp.AutoMapper.AbpAutoMapperModule
+2020-10-13 09:51:21.956 +02020-10-13 09:51:58.184 +08:00 [INF] Starting web host
+2020-10-13 09:51:59.962 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbMigrationsDbContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL' with options: None
+2020-10-13 09:52:01.044 +08:00 [INF] Executed DbCommand (21ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE c.relname='__EFMigrationsHistory');
+2020-10-13 09:52:01.111 +08:00 [INF] Executed DbCommand (7ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE c.relname='__EFMigrationsHistory');
+2020-10-13 09:52:01.157 +08:00 [INF] Executed DbCommand (21ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2020-10-13 09:52:01.213 +08:00 [INF] No migrations were applied. The database is already up to date.
+2020-10-13 09:52:01.748 +08:00 [INF] User profile is available. Using '/Users/huangmingji/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2020-10-13 09:52:01.873 +08:00 [INF] Loaded ABP modules:
+2020-10-13 09:52:01.873 +08:00 [INF] - Volo.Abp.Validation.AbpValidationAbstractionsModule
+2020-10-13 09:52:01.873 +08:00 [INF] - Volo.Abp.VirtualFileSystem.AbpVirtualFileSystemModule
+2020-10-13 09:52:01.873 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationAbstractionsModule
+2020-10-13 09:52:01.873 +08:00 [INF] - Volo.Abp.Security.AbpSecurityModule
+2020-10-13 09:52:01.874 +08:00 [INF] - Volo.Abp.ObjectExtending.AbpObjectExtendingModule
+2020-10-13 09:52:01.874 +08:00 [INF] - Volo.Abp.Uow.AbpUnitOfWorkModule
+2020-10-13 09:52:01.874 +08:00 [INF] - Volo.Abp.Data.AbpDataModule
+2020-10-13 09:52:01.874 +08:00 [INF] - Volo.Abp.MultiTenancy.AbpMultiTenancyModule
+2020-10-13 09:52:01.874 +08:00 [INF] - Volo.Abp.Settings.AbpSettingsModule
+2020-10-13 09:52:01.874 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationModule
+2020-10-13 09:52:01.875 +08:00 [INF] - Volo.Abp.Validation.AbpValidationModule
+2020-10-13 09:52:01.877 +08:00 [INF] - Lemon.Account.Domain.Shared.LemonAccountDomainSharedModule
+2020-10-13 09:52:01.877 +08:00 [INF] - Volo.Abp.Timing.AbpTimingModule
+2020-10-13 09:52:01.877 +08:00 [INF] - Volo.Abp.Json.AbpJsonModule
+2020-10-13 09:52:01.877 +08:00 [INF] - Volo.Abp.Threading.AbpThreadingModule
+2020-10-13 09:52:01.877 +08:00 [INF] - Volo.Abp.Auditing.AbpAuditingModule
+2020-10-13 09:52:01.898 +08:00 [INF] - Volo.Abp.EventBus.AbpEventBusModule
+2020-10-13 09:52:01.913 +08:00 [INF] - Volo.Abp.Guids.AbpGuidsModule
+2020-10-13 09:52:01.913 +08:00 [INF] - Volo.Abp.ObjectMapping.AbpObjectMappingModule
+2020-10-13 09:52:01.913 +08:00 [INF] - Volo.Abp.Domain.AbpDddDomainModule
+2020-10-13 09:52:01.913 +08:00 [INF] - Lemon.Account.Domain.LemonAccountDomainModule
+2020-10-13 09:52:01.913 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.AbpEntityFrameworkCoreModule
+2020-10-13 09:52:01.913 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.PostgreSql.AbpEntityFrameworkCorePostgreSqlModule
+2020-10-13 09:52:01.963 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.LemonAccountEntityFrameworkCoreModule
+2020-10-13 09:52:01.963 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.DbMigrations.LemonAccountEntityFrameworkCoreDbMigrationsModule
+2020-10-13 09:52:01.963 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationContractsModule
+2020-10-13 09:52:01.963 +08:00 [INF] - Lemon.Account.Application.Contracts.LemonAccountApplicationContractsModule
+2020-10-13 09:52:01.963 +08:00 [INF] - Volo.Abp.Authorization.AbpAuthorizationModule
+2020-10-13 09:52:01.985 +08:00 [INF] - Volo.Abp.Http.AbpHttpAbstractionsModule
+2020-10-13 09:52:01.986 +08:00 [INF] - Volo.Abp.Features.AbpFeaturesModule
+2020-10-13 09:52:01.986 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationModule
+2020-10-13 09:52:01.986 +08:00 [INF] - Volo.Abp.AutoMapper.AbpAutoMapperModule
+2020-10-13 09:52:01.986 +08:00 [INF] - Lemon.Account.Application.LemonAccountApplicationModule
+2020-10-13 09:52:01.986 +08:00 [INF] - Volo.Abp.Minify.AbpMinifyModule
+2020-10-13 09:52:01.986 +08:00 [INF] - Volo.Abp.Http.AbpHttpModule
+2020-10-13 09:52:01.986 +08:00 [INF] - Volo.Abp.UI.AbpUiModule
+2020-10-13 09:52:01.990 +08:00 [INF] - Volo.Abp.AspNetCore.AbpAspNetCoreModule
+2020-10-13 09:52:01.991 +08:00 [INF] - Volo.Abp.ApiVersioning.AbpApiVersioningAbstractionsModule
+2020-10-13 09:52:01.991 +08:00 [INF] - Volo.Abp.AspNetCore.Mvc.AbpAspNetCoreMvcContractsModule
+2020-10-13 09:52:01.991 +08:00 [INF] - Volo.Abp.GlobalFeatures.AbpGlobalFeaturesModule
+2020-10-13 09:52:01.991 +08:00 [INF] - Volo.Abp.AspNetCore.Mvc.AbpAspNetCoreMvcModule
+2020-10-13 09:52:01.991 +08:00 [INF] - Lemon.Account.HttpApi.LemonAccountHttpApiModule
+2020-10-13 09:52:02.016 +08:00 [INF] - Volo.Abp.Castle.AbpCastleCoreModule
+2020-10-13 09:52:02.026 +08:00 [INF] - Volo.Abp.Autofac.AbpAutofacModule
+2020-10-13 09:52:02.026 +08:00 [INF] - Volo.Abp.AspNetCore.Serilog.AbpAspNetCoreSerilogModule
+2020-10-13 09:52:02.026 +08:00 [INF] - Lemon.Account.Host.LemonAccountHostModule
+2020-10-13 09:52:03.142 +08:00 [INF] Initialized all ABP modules.
+2020-10-13 09:52:03.243 +08:00 [INF] Now listening on: http://localhost:5000
+2020-10-13 09:52:03.244 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2020-10-13 09:52:03.245 +08:00 [INF] Hosting environment: Development
+2020-10-13 09:52:03.245 +08:00 [INF] Content root path: /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.Host
+2020-10-13 09:52:25.751 +08:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/register application/json-patch+json 75
+2020-10-13 09:52:25.774 +08:00 [INF] CORS policy execution failed.
+2020-10-13 09:52:25.775 +08:00 [INF] Request origin http://localhost:5000 does not have permission to access the resource.
+2020-10-13 09:52:25.947 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 09:52:25.953 +08:00 [INF] Executing endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 09:52:26.448 +08:00 [INF] Route matched with {action = "Register", controller = "Account", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] RegisterAsync(Lemon.Account.Application.CreateUserDto) on controller Lemon.Account.HttpApi.Controllers.AccountController (Lemon.Account.HttpApi).
+2020-10-13 09:52:27.134 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL' with options: None
+2020-10-13 09:52:27.683 +08:00 [INF] Executed DbCommand (100ms) [Parameters=[@__ef_filter__p_0='?' (DbType = Boolean), @__email_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."Account", t."ConcurrencyStamp", t."CreationTime", t."CreatorId", t."Email", t."ExtraProperties", t."HeadIcon", t."IsDeleted", t."LastModificationTime", t."LastModifierId", t."Mobile", t."NickName", t."UserId", t."AllowEndTime", t."AllowStartTime", t."ChangPasswordDate", t."FirstVisitTime", t."LastVisitTime", t."LockEndDate", t."LockStartTime", t."LogonCount", t."MultiUserLogin", t."Password", t."PreviousVisitTime", t."SecretKey", t."UserOnline", t0."Id", t0."ConcurrencyStamp", t0."CreationTime", t0."CreatorId", t0."ExtraProperties", t0."LastModificationTime", t0."LastModifierId", t0."RoleId", t0."UserId", t0."Id0", t0."ConcurrencyStamp0", t0."CreationTime0", t0."CreatorId0", t0."ExtraProperties0", t0."LastModificationTime0", t0."LastModifierId0", t0."Name", t0."RoleId0", t0."Permission"
+FROM (
+    SELECT u."Id", u."Account", u."ConcurrencyStamp", u."CreationTime", u."CreatorId", u."Email", u."ExtraProperties", u."HeadIcon", u."IsDeleted", u."LastModificationTime", u."LastModifierId", u."Mobile", u."NickName", u0."UserId", u0."AllowEndTime", u0."AllowStartTime", u0."ChangPasswordDate", u0."FirstVisitTime", u0."LastVisitTime", u0."LockEndDate", u0."LockStartTime", u0."LogonCount", u0."MultiUserLogin", u0."Password", u0."PreviousVisitTime", u0."SecretKey", u0."UserOnline"
+    FROM account."UserData" AS u
+    LEFT JOIN account."UserLogOn" AS u0 ON u."Id" = u0."UserId"
+    WHERE (@__ef_filter__p_0 OR NOT (u."IsDeleted")) AND (u."Email" = @__email_0)
+    LIMIT 2
+) AS t
+LEFT JOIN (
+    SELECT u1."Id", u1."ConcurrencyStamp", u1."CreationTime", u1."CreatorId", u1."ExtraProperties", u1."LastModificationTime", u1."LastModifierId", u1."RoleId", u1."UserId", r."Id" AS "Id0", r."ConcurrencyStamp" AS "ConcurrencyStamp0", r."CreationTime" AS "CreationTime0", r."CreatorId" AS "CreatorId0", r."ExtraProperties" AS "ExtraProperties0", r."LastModificationTime" AS "LastModificationTime0", r."LastModifierId" AS "LastModifierId0", r."Name", r0."RoleId" AS "RoleId0", r0."Permission"
+    FROM account."UserRole" AS u1
+    INNER JOIN account."RoleData" AS r ON u1."RoleId" = r."Id"
+    LEFT JOIN account."RolePermissionData" AS r0 ON r."Id" = r0."RoleId"
+) AS t0 ON t."Id" = t0."UserId"
+ORDER BY t."Id", t0."Id", t0."Id0", t0."RoleId0", t0."Permission"
+2020-10-13 09:52:28.006 +08:00 [INF] Executing ObjectResult, writing value of type 'Microsoft.AspNetCore.Mvc.ProblemDetails'.
+2020-10-13 09:52:28.091 +08:00 [INF] Executed action Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi) in 1634.7042ms
+2020-10-13 09:52:28.198 +08:00 [INF] Executed endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 09:52:28.222 +08:00 [INF] Request finished in 2474.4567ms 400 application/json; charset=utf-8
+2020-10-13 09:52:49.638 +08:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/register application/json-patch+json 69
+2020-10-13 09:52:49.641 +08:00 [INF] CORS policy execution failed.
+2020-10-13 09:52:49.641 +08:00 [INF] Request origin http://localhost:5000 does not have permission to access the resource.
+2020-10-13 09:52:49.659 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 09:52:49.659 +08:00 [INF] Executing endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 09:52:49.661 +08:00 [INF] Route matched with {action = "Register", controller = "Account", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] RegisterAsync(Lemon.Account.Application.CreateUserDto) on controller Lemon.Account.HttpApi.Controllers.AccountController (Lemon.Account.HttpApi).
+2020-10-13 09:52:49.695 +08:00 [INF] Executing ObjectResult, writing value of type 'Microsoft.AspNetCore.Mvc.ValidationProblemDetails'.
+2020-10-13 09:52:49.744 +08:00 [INF] Executed action Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi) in 71.2672ms
+2020-10-13 09:52:49.745 +08:00 [INF] Executed endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 09:52:49.745 +08:00 [INF] Request finished in 107.9699ms 400 application/json; charset=utf-8
+2020-10-13 09:53:04.224 +08:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/verify application/json-patch+json 37
+2020-10-13 09:53:04.227 +08:00 [INF] CORS policy execution failed.
+2020-10-13 09:53:04.229 +08:00 [INF] Request origin http://localhost:5000 does not have permission to access the resource.
+2020-10-13 09:53:04.234 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 09:53:04.235 +08:00 [INF] Executing endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.VerifyPasswordAsync (Lemon.Account.HttpApi)'
+2020-10-13 09:53:04.265 +08:00 [INF] Route matched with {action = "VerifyPassword", controller = "Account", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] VerifyPasswordAsync(Lemon.Account.Application.VerifyPasswordDto) on controller Lemon.Account.HttpApi.Controllers.AccountController (Lemon.Account.HttpApi).
+2020-10-13 09:53:04.422 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL' with options: None
+2020-10-13 09:53:04.521 +08:00 [INF] Executed DbCommand (11ms) [Parameters=[@__ef_filter__p_0='?' (DbType = Boolean), @__name_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."Account", t."ConcurrencyStamp", t."CreationTime", t."CreatorId", t."Email", t."ExtraProperties", t."HeadIcon", t."IsDeleted", t."LastModificationTime", t."LastModifierId", t."Mobile", t."NickName", t."UserId", t."AllowEndTime", t."AllowStartTime", t."ChangPasswordDate", t."FirstVisitTime", t."LastVisitTime", t."LockEndDate", t."LockStartTime", t."LogonCount", t."MultiUserLogin", t."Password", t."PreviousVisitTime", t."SecretKey", t."UserOnline", t0."Id", t0."ConcurrencyStamp", t0."CreationTime", t0."CreatorId", t0."ExtraProperties", t0."LastModificationTime", t0."LastModifierId", t0."RoleId", t0."UserId", t0."Id0", t0."ConcurrencyStamp0", t0."CreationTime0", t0."CreatorId0", t0."ExtraProperties0", t0."LastModificationTime0", t0."LastModifierId0", t0."Name", t0."RoleId0", t0."Permission"
+FROM (
+    SELECT u."Id", u."Account", u."ConcurrencyStamp", u."CreationTime", u."CreatorId", u."Email", u."ExtraProperties", u."HeadIcon", u."IsDeleted", u."LastModificationTime", u."LastModifierId", u."Mobile", u."NickName", u0."UserId", u0."AllowEndTime", u0."AllowStartTime", u0."ChangPasswordDate", u0."FirstVisitTime", u0."LastVisitTime", u0."LockEndDate", u0."LockStartTime", u0."LogonCount", u0."MultiUserLogin", u0."Password", u0."PreviousVisitTime", u0."SecretKey", u0."UserOnline"
+    FROM account."UserData" AS u
+    LEFT JOIN account."UserLogOn" AS u0 ON u."Id" = u0."UserId"
+    WHERE (@__ef_filter__p_0 OR NOT (u."IsDeleted")) AND (((u."Account" = @__name_0) OR (u."Mobile" = @__name_0)) OR (u."Email" = @__name_0))
+    LIMIT 1
+) AS t
+LEFT JOIN (
+    SELECT u1."Id", u1."ConcurrencyStamp", u1."CreationTime", u1."CreatorId", u1."ExtraProperties", u1."LastModificationTime", u1."LastModifierId", u1."RoleId", u1."UserId", r."Id" AS "Id0", r."ConcurrencyStamp" AS "ConcurrencyStamp0", r."CreationTime" AS "CreationTime0", r."CreatorId" AS "CreatorId0", r."ExtraProperties" AS "ExtraProperties0", r."LastModificationTime" AS "LastModificationTime0", r."LastModifierId" AS "LastModifierId0", r."Name", r0."RoleId" AS "RoleId0", r0."Permission"
+    FROM account."UserRole" AS u1
+    INNER JOIN account."RoleData" AS r ON u1."RoleId" = r."Id"
+    LEFT JOIN account."RolePermissionData" AS r0 ON r."Id" = r0."RoleId"
+) AS t0 ON t."Id" = t0."UserId"
+ORDER BY t."Id", t0."Id", t0."Id0", t0."RoleId0", t0."Permission"
+2020-10-13 09:53:04.563 +08:00 [INF] Executing ObjectResult, writing value of type 'Microsoft.AspNetCore.Mvc.ProblemDetails'.
+2020-10-13 09:53:04.610 +08:00 [INF] Executed action Lemon.Account.HttpApi.Controllers.AccountController.VerifyPasswordAsync (Lemon.Account.HttpApi) in 344.5111ms
+2020-10-13 09:53:04.627 +08:00 [INF] Executed endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.VerifyPasswordAsync (Lemon.Account.HttpApi)'
+2020-10-13 09:53:04.663 +08:00 [INF] Request finished in 436.0842ms 404 application/json; charset=utf-8
+2020-10-13 09:53:30.556 +08:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/register application/json-patch+json 78
+2020-10-13 09:53:30.558 +08:00 [INF] CORS policy execution failed.
+2020-10-13 09:53:30.558 +08:00 [INF] Request origin http://localhost:5000 does not have permission to access the resource.
+2020-10-13 09:53:30.560 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 09:53:30.561 +08:00 [INF] Executing endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 09:53:30.563 +08:00 [INF] Route matched with {action = "Register", controller = "Account", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] RegisterAsync(Lemon.Account.Application.CreateUserDto) on controller Lemon.Account.HttpApi.Controllers.AccountController (Lemon.Account.HttpApi).
+2020-10-13 09:53:30.613 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL' with options: None
+2020-10-13 09:53:30.660 +08:00 [INF] Executed DbCommand (12ms) [Parameters=[@__ef_filter__p_0='?' (DbType = Boolean), @__email_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."Account", t."ConcurrencyStamp", t."CreationTime", t."CreatorId", t."Email", t."ExtraProperties", t."HeadIcon", t."IsDeleted", t."LastModificationTime", t."LastModifierId", t."Mobile", t."NickName", t."UserId", t."AllowEndTime", t."AllowStartTime", t."ChangPasswordDate", t."FirstVisitTime", t."LastVisitTime", t."LockEndDate", t."LockStartTime", t."LogonCount", t."MultiUserLogin", t."Password", t."PreviousVisitTime", t."SecretKey", t."UserOnline", t0."Id", t0."ConcurrencyStamp", t0."CreationTime", t0."CreatorId", t0."ExtraProperties", t0."LastModificationTime", t0."LastModifierId", t0."RoleId", t0."UserId", t0."Id0", t0."ConcurrencyStamp0", t0."CreationTime0", t0."CreatorId0", t0."ExtraProperties0", t0."LastModificationTime0", t0."LastModifierId0", t0."Name", t0."RoleId0", t0."Permission"
+FROM (
+    SELECT u."Id", u."Account", u."ConcurrencyStamp", u."CreationTime", u."CreatorId", u."Email", u."ExtraProperties", u."HeadIcon", u."IsDeleted", u."LastModificationTime", u."LastModifierId", u."Mobile", u."NickName", u0."UserId", u0."AllowEndTime", u0."AllowStartTime", u0."ChangPasswordDate", u0."FirstVisitTime", u0."LastVisitTime", u0."LockEndDate", u0."LockStartTime", u0."LogonCount", u0."MultiUserLogin", u0."Password", u0."PreviousVisitTime", u0."SecretKey", u0."UserOnline"
+    FROM account."UserData" AS u
+    LEFT JOIN account."UserLogOn" AS u0 ON u."Id" = u0."UserId"
+    WHERE (@__ef_filter__p_0 OR NOT (u."IsDeleted")) AND (u."Email" = @__email_0)
+    LIMIT 2
+) AS t
+LEFT JOIN (
+    SELECT u1."Id", u1."ConcurrencyStamp", u1."CreationTime", u1."CreatorId", u1."ExtraProperties", u1."LastModificationTime", u1."LastModifierId", u1."RoleId", u1."UserId", r."Id" AS "Id0", r."ConcurrencyStamp" AS "ConcurrencyStamp0", r."CreationTime" AS "CreationTime0", r."CreatorId" AS "CreatorId0", r."ExtraProperties" AS "ExtraProperties0", r."LastModificationTime" AS "LastModificationTime0", r."LastModifierId" AS "LastModifierId0", r."Name", r0."RoleId" AS "RoleId0", r0."Permission"
+    FROM account."UserRole" AS u1
+    INNER JOIN account."RoleData" AS r ON u1."RoleId" = r."Id"
+    LEFT JOIN account."RolePermissionData" AS r0 ON r."Id" = r0."RoleId"
+) AS t0 ON t."Id" = t0."UserId"
+ORDER BY t."Id", t0."Id", t0."Id0", t0."RoleId0", t0."Permission"
+2020-10-13 09:53:30.901 +08:00 [INF] Executed DbCommand (21ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?', @p2='?', @p3='?' (DbType = DateTime), @p4='?' (DbType = Guid), @p5='?', @p6='?', @p7='?', @p8='?' (DbType = DateTime), @p9='?' (DbType = Guid), @p10='?', @p11='?'], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO account."UserData" ("Id", "Account", "ConcurrencyStamp", "CreationTime", "CreatorId", "Email", "ExtraProperties", "HeadIcon", "LastModificationTime", "LastModifierId", "Mobile", "NickName")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)
+RETURNING "IsDeleted";
+2020-10-13 09:53:30.981 +08:00 [INF] Executed DbCommand (15ms) [Parameters=[@p12='?' (DbType = Guid), @p13='?' (DbType = DateTime), @p14='?' (DbType = DateTime), @p15='?' (DbType = DateTime), @p16='?' (DbType = DateTime), @p17='?' (DbType = DateTime), @p18='?' (DbType = DateTime), @p19='?' (DbType = DateTime), @p20='?' (DbType = Int32), @p21='?' (DbType = Boolean), @p22='?', @p23='?' (DbType = DateTime), @p24='?', @p25='?' (DbType = Boolean)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO account."UserLogOn" ("UserId", "AllowEndTime", "AllowStartTime", "ChangPasswordDate", "FirstVisitTime", "LastVisitTime", "LockEndDate", "LockStartTime", "LogonCount", "MultiUserLogin", "Password", "PreviousVisitTime", "SecretKey", "UserOnline")
+VALUES (@p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25);
+2020-10-13 09:53:31.070 +08:00 [INF] Executing ObjectResult, writing value of type 'Lemon.Account.Application.UserDto'.
+2020-10-13 09:53:31.133 +08:00 [INF] Executed action Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi) in 534.1301ms
+2020-10-13 09:53:31.135 +08:00 [INF] Executed endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 09:53:31.136 +08:00 [INF] Request finished in 580.7963ms 200 application/json; charset=utf-8
+2020-10-13 09:53:52.599 +08:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/verify application/json-patch+json 54
+2020-10-13 09:53:52.601 +08:00 [INF] CORS policy execution failed.
+2020-10-13 09:53:52.601 +08:00 [INF] Request origin http://localhost:5000 does not have permission to access the resource.
+2020-10-13 09:53:52.602 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 09:53:52.603 +08:00 [INF] Executing endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.VerifyPasswordAsync (Lemon.Account.HttpApi)'
+2020-10-13 09:53:52.606 +08:00 [INF] Route matched with {action = "VerifyPassword", controller = "Account", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] VerifyPasswordAsync(Lemon.Account.Application.VerifyPasswordDto) on controller Lemon.Account.HttpApi.Controllers.AccountController (Lemon.Account.HttpApi).
+2020-10-13 09:53:52.645 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL' with options: None
+2020-10-13 09:53:52.704 +08:00 [INF] Executed DbCommand (42ms) [Parameters=[@__ef_filter__p_0='?' (DbType = Boolean), @__name_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."Account", t."ConcurrencyStamp", t."CreationTime", t."CreatorId", t."Email", t."ExtraProperties", t."HeadIcon", t."IsDeleted", t."LastModificationTime", t."LastModifierId", t."Mobile", t."NickName", t."UserId", t."AllowEndTime", t."AllowStartTime", t."ChangPasswordDate", t."FirstVisitTime", t."LastVisitTime", t."LockEndDate", t."LockStartTime", t."LogonCount", t."MultiUserLogin", t."Password", t."PreviousVisitTime", t."SecretKey", t."UserOnline", t0."Id", t0."ConcurrencyStamp", t0."CreationTime", t0."CreatorId", t0."ExtraProperties", t0."LastModificationTime", t0."LastModifierId", t0."RoleId", t0."UserId", t0."Id0", t0."ConcurrencyStamp0", t0."CreationTime0", t0."CreatorId0", t0."ExtraProperties0", t0."LastModificationTime0", t0."LastModifierId0", t0."Name", t0."RoleId0", t0."Permission"
+FROM (
+    SELECT u."Id", u."Account", u."ConcurrencyStamp", u."CreationTime", u."CreatorId", u."Email", u."ExtraProperties", u."HeadIcon", u."IsDeleted", u."LastModificationTime", u."LastModifierId", u."Mobile", u."NickName", u0."UserId", u0."AllowEndTime", u0."AllowStartTime", u0."ChangPasswordDate", u0."FirstVisitTime", u0."LastVisitTime", u0."LockEndDate", u0."LockStartTime", u0."LogonCount", u0."MultiUserLogin", u0."Password", u0."PreviousVisitTime", u0."SecretKey", u0."UserOnline"
+    FROM account."UserData" AS u
+    LEFT JOIN account."UserLogOn" AS u0 ON u."Id" = u0."UserId"
+    WHERE (@__ef_filter__p_0 OR NOT (u."IsDeleted")) AND (((u."Account" = @__name_0) OR (u."Mobile" = @__name_0)) OR (u."Email" = @__name_0))
+    LIMIT 1
+) AS t
+LEFT JOIN (
+    SELECT u1."Id", u1."ConcurrencyStamp", u1."CreationTime", u1."CreatorId", u1."ExtraProperties", u1."LastModificationTime", u1."LastModifierId", u1."RoleId", u1."UserId", r."Id" AS "Id0", r."ConcurrencyStamp" AS "ConcurrencyStamp0", r."CreationTime" AS "CreationTime0", r."CreatorId" AS "CreatorId0", r."ExtraProperties" AS "ExtraProperties0", r."LastModificationTime" AS "LastModificationTime0", r."LastModifierId" AS "LastModifierId0", r."Name", r0."RoleId" AS "RoleId0", r0."Permission"
+    FROM account."UserRole" AS u1
+    INNER JOIN account."RoleData" AS r ON u1."RoleId" = r."Id"
+    LEFT JOIN account."RolePermissionData" AS r0 ON r."Id" = r0."RoleId"
+) AS t0 ON t."Id" = t0."UserId"
+ORDER BY t."Id", t0."Id", t0."Id0", t0."RoleId0", t0."Permission"
+2020-10-13 09:53:52.885 +08:00 [INF] Executing ObjectResult, writing value of type 'Lemon.Account.Application.UserDto'.
+2020-10-13 09:53:52.928 +08:00 [INF] Executed action Lemon.Account.HttpApi.Controllers.AccountController.VerifyPasswordAsync (Lemon.Account.HttpApi) in 280.2025ms
+2020-10-13 09:53:52.929 +08:00 [INF] Executed endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.VerifyPasswordAsync (Lemon.Account.HttpApi)'
+2020-10-13 09:53:52.930 +08:00 [INF] Request finished in 330.9741ms 200 application/json; charset=utf-8
+2020-10-13 10:14:58.649 +08:00 [INF] Application is shutting down...
+2020-10-13 10:15:12.705 +08:00 [INF] Starting web host
+2020-10-13 10:15:13.971 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbMigrationsDbContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL' with options: None
+2020-10-13 10:15:14.755 +08:00 [INF] Executed DbCommand (22ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE c.relname='__EFMigrationsHistory');
+2020-10-13 10:15:14.822 +08:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE c.relname='__EFMigrationsHistory');
+2020-10-13 10:15:14.894 +08:00 [INF] Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2020-10-13 10:15:14.939 +08:00 [INF] No migrations were applied. The database is already up to date.
+2020-10-13 10:15:15.404 +08:00 [INF] User profile is available. Using '/Users/huangmingji/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2020-10-13 10:15:15.498 +08:00 [INF] Loaded ABP modules:
+2020-10-13 10:15:15.498 +08:00 [INF] - Volo.Abp.Validation.AbpValidationAbstractionsModule
+2020-10-13 10:15:15.498 +08:00 [INF] - Volo.Abp.VirtualFileSystem.AbpVirtualFileSystemModule
+2020-10-13 10:15:15.498 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationAbstractionsModule
+2020-10-13 10:15:15.499 +08:00 [INF] - Volo.Abp.Security.AbpSecurityModule
+2020-10-13 10:15:15.499 +08:00 [INF] - Volo.Abp.ObjectExtending.AbpObjectExtendingModule
+2020-10-13 10:15:15.499 +08:00 [INF] - Volo.Abp.Uow.AbpUnitOfWorkModule
+2020-10-13 10:15:15.499 +08:00 [INF] - Volo.Abp.Data.AbpDataModule
+2020-10-13 10:15:15.499 +08:00 [INF] - Volo.Abp.MultiTenancy.AbpMultiTenancyModule
+2020-10-13 10:15:15.499 +08:00 [INF] - Volo.Abp.Settings.AbpSettingsModule
+2020-10-13 10:15:15.499 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationModule
+2020-10-13 10:15:15.499 +08:00 [INF] - Volo.Abp.Validation.AbpValidationModule
+2020-10-13 10:15:15.499 +08:00 [INF] - Lemon.Account.Domain.Shared.LemonAccountDomainSharedModule
+2020-10-13 10:15:15.499 +08:00 [INF] - Volo.Abp.Timing.AbpTimingModule
+2020-10-13 10:15:15.499 +08:00 [INF] - Volo.Abp.Json.AbpJsonModule
+2020-10-13 10:15:15.500 +08:00 [INF] - Volo.Abp.Threading.AbpThreadingModule
+2020-10-13 10:15:15.500 +08:00 [INF] - Volo.Abp.Auditing.AbpAuditingModule
+2020-10-13 10:15:15.500 +08:00 [INF] - Volo.Abp.EventBus.AbpEventBusModule
+2020-10-13 10:15:15.500 +08:00 [INF] - Volo.Abp.Guids.AbpGuidsModule
+2020-10-13 10:15:15.500 +08:00 [INF] - Volo.Abp.ObjectMapping.AbpObjectMappingModule
+2020-10-13 10:15:15.500 +08:00 [INF] - Volo.Abp.Domain.AbpDddDomainModule
+2020-10-13 10:15:15.501 +08:00 [INF] - Lemon.Account.Domain.LemonAccountDomainModule
+2020-10-13 10:15:15.501 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.AbpEntityFrameworkCoreModule
+2020-10-13 10:15:15.501 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.PostgreSql.AbpEntityFrameworkCorePostgreSqlModule
+2020-10-13 10:15:15.519 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.LemonAccountEntityFrameworkCoreModule
+2020-10-13 10:15:15.519 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.DbMigrations.LemonAccountEntityFrameworkCoreDbMigrationsModule
+2020-10-13 10:15:15.520 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationContractsModule
+2020-10-13 10:15:15.520 +08:00 [INF] - Lemon.Account.Application.Contracts.LemonAccountApplicationContractsModule
+2020-10-13 10:15:15.521 +08:00 [INF] - Volo.Abp.Authorization.AbpAuthorizationModule
+2020-10-13 10:15:15.521 +08:00 [INF] - Volo.Abp.Http.AbpHttpAbstractionsModule
+2020-10-13 10:15:15.521 +08:00 [INF] - Volo.Abp.Features.AbpFeaturesModule
+2020-10-13 10:15:15.521 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationModule
+2020-10-13 10:15:15.522 +08:00 [INF] - Volo.Abp.AutoMapper.AbpAutoMapperModule
+2020-10-13 10:15:15.522 +08:00 [INF] - Lemon.Account.Application.LemonAccountApplicationModule
+2020-10-13 10:15:15.524 +08:00 [INF] - Volo.Abp.Minify.AbpMinifyModule
+2020-10-13 10:15:15.524 +08:00 [INF] - Volo.Abp.Http.AbpHttpModule
+2020-10-13 10:15:15.526 +08:00 [INF] - Volo.Abp.UI.AbpUiModule
+2020-10-13 10:15:15.527 +08:00 [INF] - Volo.Abp.AspNetCore.AbpAspNetCoreModule
+2020-10-13 10:15:15.527 +08:00 [INF] - Volo.Abp.ApiVersioning.AbpApiVersioningAbstractionsModule
+2020-10-13 10:15:15.531 +08:00 [INF] - Volo.Abp.AspNetCore.Mvc.AbpAspNetCoreMvcContractsModule
+2020-10-13 10:15:15.531 +08:00 [INF] - Volo.Abp.GlobalFeatures.AbpGlobalFeaturesModule
+2020-10-13 10:15:15.531 +08:00 [INF] - Volo.Abp.AspNetCore.Mvc.AbpAspNetCoreMvcModule
+2020-10-13 10:15:15.531 +08:00 [INF] - Lemon.Account.HttpApi.LemonAccountHttpApiModule
+2020-10-13 10:15:15.531 +08:00 [INF] - Volo.Abp.Castle.AbpCastleCoreModule
+2020-10-13 10:15:15.544 +08:00 [INF] - Volo.Abp.Autofac.AbpAutofacModule
+2020-10-13 10:15:15.553 +08:00 [INF] - Volo.Abp.AspNetCore.Serilog.AbpAspNetCoreSerilogModule
+2020-10-13 10:15:15.554 +08:00 [INF] - Lemon.Account.Host.LemonAccountHostModule
+2020-10-13 10:15:16.424 +08:00 [INF] Initialized all ABP modules.
+2020-10-13 10:15:16.490 +08:00 [INF] Now listening on: http://localhost:5000
+2020-10-13 10:15:16.490 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2020-10-13 10:15:16.491 +08:00 [INF] Hosting environment: Development
+2020-10-13 10:15:16.491 +08:00 [INF] Content root path: /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.Host
+2020-10-13 10:31:45.751 +08:00 [INF] Application is shutting down...
+2020-10-13 11:05:10.196 +08:00 [INF] Starting web host
+2020-10-13 11:05:11.952 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbMigrationsDbContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL' with options: None
+2020-10-13 11:05:12.686 +08:00 [INF] Executed DbCommand (24ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE c.relname='__EFMigrationsHistory');
+2020-10-13 11:05:12.740 +08:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE c.relname='__EFMigrationsHistory');
+2020-10-13 11:05:12.776 +08:00 [INF] Executed DbCommand (16ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2020-10-13 11:05:12.808 +08:00 [INF] No migrations were applied. The database is already up to date.
+2020-10-13 11:05:13.518 +08:00 [INF] User profile is available. Using '/Users/huangmingji/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2020-10-13 11:05:13.640 +08:00 [INF] Loaded ABP modules:
+2020-10-13 11:05:13.640 +08:00 [INF] - Volo.Abp.Validation.AbpValidationAbstractionsModule
+2020-10-13 11:05:13.640 +08:00 [INF] - Volo.Abp.VirtualFileSystem.AbpVirtualFileSystemModule
+2020-10-13 11:05:13.640 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationAbstractionsModule
+2020-10-13 11:05:13.640 +08:00 [INF] - Volo.Abp.Security.AbpSecurityModule
+2020-10-13 11:05:13.641 +08:00 [INF] - Volo.Abp.ObjectExtending.AbpObjectExtendingModule
+2020-10-13 11:05:13.641 +08:00 [INF] - Volo.Abp.Uow.AbpUnitOfWorkModule
+2020-10-13 11:05:13.641 +08:00 [INF] - Volo.Abp.Data.AbpDataModule
+2020-10-13 11:05:13.641 +08:00 [INF] - Volo.Abp.MultiTenancy.AbpMultiTenancyModule
+2020-10-13 11:05:13.641 +08:00 [INF] - Volo.Abp.Settings.AbpSettingsModule
+2020-10-13 11:05:13.641 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationModule
+2020-10-13 11:05:13.641 +08:00 [INF] - Volo.Abp.Validation.AbpValidationModule
+2020-10-13 11:05:13.642 +08:00 [INF] - Lemon.Account.Domain.Shared.LemonAccountDomainSharedModule
+2020-10-13 11:05:13.642 +08:00 [INF] - Volo.Abp.Timing.AbpTimingModule
+2020-10-13 11:05:13.642 +08:00 [INF] - Volo.Abp.Json.AbpJsonModule
+2020-10-13 11:05:13.642 +08:00 [INF] - Volo.Abp.Threading.AbpThreadingModule
+2020-10-13 11:05:13.642 +08:00 [INF] - Volo.Abp.Auditing.AbpAuditingModule
+2020-10-13 11:05:13.642 +08:00 [INF] - Volo.Abp.EventBus.AbpEventBusModule
+2020-10-13 11:05:13.642 +08:00 [INF] - Volo.Abp.Guids.AbpGuidsModule
+2020-10-13 11:05:13.643 +08:00 [INF] - Volo.Abp.ObjectMapping.AbpObjectMappingModule
+2020-10-13 11:05:13.643 +08:00 [INF] - Volo.Abp.Domain.AbpDddDomainModule
+2020-10-13 11:05:13.653 +08:00 [INF] - Lemon.Account.Domain.LemonAccountDomainModule
+2020-10-13 11:05:13.654 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.AbpEntityFrameworkCoreModule
+2020-10-13 11:05:13.654 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.PostgreSql.AbpEntityFrameworkCorePostgreSqlModule
+2020-10-13 11:05:13.654 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.LemonAccountEntityFrameworkCoreModule
+2020-10-13 11:05:13.654 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.DbMigrations.LemonAccountEntityFrameworkCoreDbMigrationsModule
+2020-10-13 11:05:13.654 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationContractsModule
+2020-10-13 11:05:13.655 +08:00 [INF] - Lemon.Account.Application.Contracts.LemonAccountApplicationContractsModule
+2020-10-13 11:05:13.655 +08:00 [INF] - Volo.Abp.Authorization.AbpAuthorizationModule
+2020-10-13 11:05:13.655 +08:00 [INF] - Volo.Abp.Http.AbpHttpAbstractionsModule
+2020-10-13 11:05:13.655 +08:00 [INF] - Volo.Abp.Features.AbpFeaturesModule
+2020-10-13 11:05:13.659 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationModule
+2020-10-13 11:05:13.660 +08:00 [INF] - Volo.Abp.AutoMapper.AbpAutoMapperModule
+2020-10-13 11:05:13.660 +08:00 [INF] - Lemon.Account.Application.LemonAccountApplicationModule
+2020-10-13 11:05:13.661 +08:00 [INF] - Volo.Abp.Minify.AbpMinifyModule
+2020-10-13 11:05:13.661 +08:00 [INF] - Volo.Abp.Http.AbpHttpModule
+2020-10-13 11:05:13.661 +08:00 [INF] - Volo.Abp.UI.AbpUiModule
+2020-10-13 11:05:13.662 +08:00 [INF] - Volo.Abp.AspNetCore.AbpAspNetCoreModule
+2020-10-13 11:05:13.662 +08:00 [INF] - Volo.Abp.ApiVersioning.AbpApiVersioningAbstractionsModule
+2020-10-13 11:05:13.670 +08:00 [INF] - Volo.Abp.AspNetCore.Mvc.AbpAspNetCoreMvcContractsModule
+2020-10-13 11:05:13.693 +08:00 [INF] - Volo.Abp.GlobalFeatures.AbpGlobalFeaturesModule
+2020-10-13 11:05:13.698 +08:00 [INF] - Volo.Abp.AspNetCore.Mvc.AbpAspNetCoreMvcModule
+2020-10-13 11:05:13.699 +08:00 [INF] - Lemon.Account.HttpApi.LemonAccountHttpApiModule
+2020-10-13 11:05:13.700 +08:00 [INF] - Volo.Abp.Castle.AbpCastleCoreModule
+2020-10-13 11:05:13.702 +08:00 [INF] - Volo.Abp.Autofac.AbpAutofacModule
+2020-10-13 11:05:13.703 +08:00 [INF] - Volo.Abp.AspNetCore.Serilog.AbpAspNetCoreSerilogModule
+2020-10-13 11:05:13.703 +08:00 [INF] - Lemon.Account.Host.LemonAccountHostModule
+2020-10-13 11:05:14.879 +08:00 [INF] Initialized all ABP modules.
+2020-10-13 11:05:14.948 +08:00 [INF] Now listening on: http://localhost:5000
+2020-10-13 11:05:14.948 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2020-10-13 11:05:14.950 +08:00 [INF] Hosting environment: Development
+2020-10-13 11:05:14.950 +08:00 [INF] Content root path: /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.Host
+2020-10-13 11:06:30.585 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/swagger/index.html  
+2020-10-13 11:06:30.721 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 11:06:30.876 +08:00 [INF] Request finished in 294.643ms 200 text/html;charset=utf-8
+2020-10-13 11:06:32.232 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/swagger/v1/swagger.json  
+2020-10-13 11:06:32.236 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 11:06:32.549 +08:00 [INF] Request finished in 316.7112ms 200 application/json;charset=utf-8
+2020-10-13 11:06:40.441 +08:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/register application/json-patch+json 68
+2020-10-13 11:06:40.444 +08:00 [INF] CORS policy execution failed.
+2020-10-13 11:06:40.445 +08:00 [INF] Request origin http://localhost:5000 does not have permission to access the resource.
+2020-10-13 11:06:40.448 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 11:06:40.450 +08:00 [INF] Executing endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 11:06:40.732 +08:00 [INF] Route matched with {action = "Register", controller = "Account", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] RegisterAsync(Lemon.Account.Application.CreateUserDto) on controller Lemon.Account.HttpApi.Controllers.AccountController (Lemon.Account.HttpApi).
+2020-10-13 11:06:41.402 +08:00 [INF] Executing ObjectResult, writing value of type 'Microsoft.AspNetCore.Mvc.ValidationProblemDetails'.
+2020-10-13 11:06:41.614 +08:00 [INF] Executed action Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi) in 856.847ms
+2020-10-13 11:06:41.635 +08:00 [INF] Executed endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 11:06:41.713 +08:00 [INF] Request finished in 1272.8032ms 400 application/json; charset=utf-8
+2020-10-13 11:06:50.211 +08:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/register application/json-patch+json 80
+2020-10-13 11:06:50.215 +08:00 [INF] CORS policy execution failed.
+2020-10-13 11:06:50.216 +08:00 [INF] Request origin http://localhost:5000 does not have permission to access the resource.
+2020-10-13 11:06:50.225 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 11:06:50.226 +08:00 [INF] Executing endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 11:06:50.231 +08:00 [INF] Route matched with {action = "Register", controller = "Account", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] RegisterAsync(Lemon.Account.Application.CreateUserDto) on controller Lemon.Account.HttpApi.Controllers.AccountController (Lemon.Account.HttpApi).
+2020-10-13 11:06:50.514 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL' with options: None
+2020-10-13 11:06:51.382 +08:00 [INF] Executed DbCommand (166ms) [Parameters=[@__ef_filter__p_0='?' (DbType = Boolean), @__email_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."Account", t."ConcurrencyStamp", t."CreationTime", t."CreatorId", t."Email", t."ExtraProperties", t."HeadIcon", t."IsDeleted", t."LastModificationTime", t."LastModifierId", t."Mobile", t."NickName", t."UserId", t."AllowEndTime", t."AllowStartTime", t."ChangPasswordDate", t."FirstVisitTime", t."LastVisitTime", t."LockEndDate", t."LockStartTime", t."LogonCount", t."MultiUserLogin", t."Password", t."PreviousVisitTime", t."SecretKey", t."UserOnline", t0."Id", t0."ConcurrencyStamp", t0."CreationTime", t0."CreatorId", t0."ExtraProperties", t0."LastModificationTime", t0."LastModifierId", t0."RoleId", t0."UserId", t0."Id0", t0."ConcurrencyStamp0", t0."CreationTime0", t0."CreatorId0", t0."ExtraProperties0", t0."LastModificationTime0", t0."LastModifierId0", t0."Name", t0."RoleId0", t0."Permission"
+FROM (
+    SELECT u."Id", u."Account", u."ConcurrencyStamp", u."CreationTime", u."CreatorId", u."Email", u."ExtraProperties", u."HeadIcon", u."IsDeleted", u."LastModificationTime", u."LastModifierId", u."Mobile", u."NickName", u0."UserId", u0."AllowEndTime", u0."AllowStartTime", u0."ChangPasswordDate", u0."FirstVisitTime", u0."LastVisitTime", u0."LockEndDate", u0."LockStartTime", u0."LogonCount", u0."MultiUserLogin", u0."Password", u0."PreviousVisitTime", u0."SecretKey", u0."UserOnline"
+    FROM account."UserData" AS u
+    LEFT JOIN account."UserLogOn" AS u0 ON u."Id" = u0."UserId"
+    WHERE (@__ef_filter__p_0 OR NOT (u."IsDeleted")) AND (u."Email" = @__email_0)
+    LIMIT 2
+) AS t
+LEFT JOIN (
+    SELECT u1."Id", u1."ConcurrencyStamp", u1."CreationTime", u1."CreatorId", u1."ExtraProperties", u1."LastModificationTime", u1."LastModifierId", u1."RoleId", u1."UserId", r."Id" AS "Id0", r."ConcurrencyStamp" AS "ConcurrencyStamp0", r."CreationTime" AS "CreationTime0", r."CreatorId" AS "CreatorId0", r."ExtraProperties" AS "ExtraProperties0", r."LastModificationTime" AS "LastModificationTime0", r."LastModifierId" AS "LastModifierId0", r."Name", r0."RoleId" AS "RoleId0", r0."Permission"
+    FROM account."UserRole" AS u1
+    INNER JOIN account."RoleData" AS r ON u1."RoleId" = r."Id"
+    LEFT JOIN account."RolePermissionData" AS r0 ON r."Id" = r0."RoleId"
+) AS t0 ON t."Id" = t0."UserId"
+ORDER BY t."Id", t0."Id", t0."Id0", t0."RoleId0", t0."Permission"
+2020-10-13 11:06:51.950 +08:00 [INF] Executing ObjectResult, writing value of type 'Microsoft.AspNetCore.Mvc.ProblemDetails'.
+2020-10-13 11:06:52.000 +08:00 [INF] Executed action Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi) in 1768.228ms
+2020-10-13 11:06:52.160 +08:00 [INF] Executed endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 11:06:52.267 +08:00 [INF] Request finished in 2057.039ms 400 application/json; charset=utf-8
+2020-10-13 11:07:12.939 +08:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/verify application/json-patch+json 37
+2020-10-13 11:07:12.942 +08:00 [INF] CORS policy execution failed.
+2020-10-13 11:07:12.942 +08:00 [INF] Request origin http://localhost:5000 does not have permission to access the resource.
+2020-10-13 11:07:12.944 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 2020-10-13 11:07:40.241 +08:00 [INF] Starting web host
+2020-10-13 11:07:41.815 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbMigrationsDbContext' using provider 'Pomelo.EntityFrameworkCore.MySql' with options: None
+2020-10-13 11:08:41.957 +08:00 [ERR] An error occurred using the connection to database '' on server '127.0.0.1'.
+2020-10-13 11:08:41.963 +08:00 [FTL] Host terminated unexpectedly
+Volo.Abp.AbpInitializationException: An error occurred during ConfigureServices phase of the module Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations.LemonAccountEntityFrameworkCoreDbMigrationsModule, Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null. See the inner exception for details.
+ ---> System.InvalidOperationException: An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure()' to the 'UseMySql' call.
+ ---> MySql.Data.MySqlClient.MySqlException (0x80004005): Couldn't connect to server
+ ---> System.IO.EndOfStreamException: Expected to read 4 header bytes but only received 0.
+   at MySqlConnector.Protocol.Serialization.ProtocolUtility.DoReadPayloadAsync(BufferedByteReader bufferedByteReader, IByteHandler byteHandler, Func`1 getNextSequenceNumber, ArraySegmentHolder`1 previousPayloads, ProtocolErrorBehavior protocolErrorBehavior, IOBehavior ioBehavior) in C:\projects\mysqlconnector\src\MySqlConnector\Protocol\Serialization\ProtocolUtility.cs:line 470
+   at MySqlConnector.Protocol.Serialization.ProtocolUtility.ReadPayloadAsync(BufferedByteReader bufferedByteReader, IByteHandler byteHandler, Func`1 getNextSequenceNumber, ArraySegmentHolder`1 cache, ProtocolErrorBehavior protocolErrorBehavior, IOBehavior ioBehavior) in C:\projects\mysqlconnector\src\MySqlConnector\Protocol\Serialization\ProtocolUtility.cs:line 462
+   at MySqlConnector.Protocol.Serialization.StandardPayloadHandler.ReadPayloadAsync(ArraySegmentHolder`1 cache, ProtocolErrorBehavior protocolErrorBehavior, IOBehavior ioBehavior) in C:\projects\mysqlconnector\src\MySqlConnector\Protocol\Serialization\StandardPayloadHandler.cs:line 42
+   at MySqlConnector.Core.ServerSession.ReceiveReplyAsync(IOBehavior ioBehavior, CancellationToken cancellationToken) in C:\projects\mysqlconnector\src\MySqlConnector\Core\ServerSession.cs:line 734
+--- End of stack trace from previous location where exception was thrown ---
+   at MySqlConnector.Core.ServerSession.ReceiveReplyAsyncAwaited(ValueTask`1 task) in C:\projects\mysqlconnector\src\MySqlConnector\Core\ServerSession.cs:line 762
+   at MySqlConnector.Core.ServerSession.ConnectAsync(ConnectionSettings cs, ILoadBalancer loadBalancer, IOBehavior ioBehavior, CancellationToken cancellationToken) in C:\projects\mysqlconnector\src\MySqlConnector\Core\ServerSession.cs:line 354
+   at MySqlConnector.Core.ServerSession.ConnectAsync(ConnectionSettings cs, ILoadBalancer loadBalancer, IOBehavior ioBehavior, CancellationToken cancellationToken) in C:\projects\mysqlconnector\src\MySqlConnector\Core\ServerSession.cs:line 455
+   at MySql.Data.MySqlClient.MySqlConnection.CreateSessionAsync(ConnectionPool pool, Nullable`1 ioBehavior, CancellationToken cancellationToken) in C:\projects\mysqlconnector\src\MySqlConnector\MySql.Data.MySqlClient\MySqlConnection.cs:line 657
+   at MySql.Data.MySqlClient.MySqlConnection.OpenAsync(Nullable`1 ioBehavior, CancellationToken cancellationToken) in C:\projects\mysqlconnector\src\MySqlConnector\MySql.Data.MySqlClient\MySqlConnection.cs:line 312
+   at MySql.Data.MySqlClient.MySqlConnection.Open() in C:\projects\mysqlconnector\src\MySqlConnector\MySql.Data.MySqlClient\MySqlConnection.cs:line 280
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenDbConnection(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.Open(Boolean errorsExpected)
+   at Pomelo.EntityFrameworkCore.MySql.Storage.Internal.MySqlRelationalConnection.Open(Boolean errorsExpected)
+   at Pomelo.EntityFrameworkCore.MySql.Storage.Internal.MySqlDatabaseCreator.<>c__DisplayClass18_0.<Exists>b__0(DateTime giveUp)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.<>c__DisplayClass12_0`2.<Execute>b__0(DbContext c, TState s)
+   at Pomelo.EntityFrameworkCore.MySql.Storage.Internal.MySqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   --- End of inner exception stack trace ---
+   at Pomelo.EntityFrameworkCore.MySql.Storage.Internal.MySqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TState,TResult](IExecutionStrategy strategy, TState state, Func`2 operation, Func`2 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TState,TResult](IExecutionStrategy strategy, TState state, Func`2 operation)
+   at Pomelo.EntityFrameworkCore.MySql.Storage.Internal.MySqlDatabaseCreator.Exists(Boolean retryOnNotExists)
+   at Pomelo.EntityFrameworkCore.MySql.Storage.Internal.MySqlDatabaseCreator.Exists()
+   at Microsoft.EntityFrameworkCore.Migrations.HistoryRepository.Exists()
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.Migrate(String targetMigration)
+   at Pomelo.EntityFrameworkCore.MySql.Migrations.Internal.MySqlMigrator.Migrate(String targetMigration)
+   at Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.Migrate(DatabaseFacade databaseFacade)
+   at Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations.LemonAccountEntityFrameworkCoreDbMigrationsModule.ConfigureServices(ServiceConfigurationContext context) in /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations/LemonAccountEntityFrameworkCoreDbMigrationsModule.cs:line 25
+   at Volo.Abp.AbpApplicationBase.ConfigureServices()
+   --- End of inner exception stack trace ---
+   at Volo.Abp.AbpApplicationBase.ConfigureServices()
+   at Volo.Abp.AbpApplicationBase..ctor(Type startupModuleType, IServiceCollection services, Action`1 optionsAction)
+   at Volo.Abp.AbpApplicationWithExternalServiceProvider..ctor(Type startupModuleType, IServiceCollection services, Action`1 optionsAction)
+   at Volo.Abp.AbpApplicationFactory.Create(Type startupModuleType, IServiceCollection services, Action`1 optionsAction)
+   at Volo.Abp.AbpApplicationFactory.Create[TStartupModule](IServiceCollection services, Action`1 optionsAction)
+   at Microsoft.Extensions.DependencyInjection.ServiceCollectionApplicationExtensions.AddApplication[TStartupModule](IServiceCollection services, Action`1 optionsAction)
+   at Lemon.Account.Host.Startup.ConfigureServices(IServiceCollection services) in /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.Host/Startup.cs:line 17
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Object[] arguments, Signature sig, Boolean constructor, Boolean wrapExceptions)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at Microsoft.AspNetCore.Hosting.ConfigureServicesBuilder.InvokeCore(Object instance, IServiceCollection services)
+   at Microsoft.AspNetCore.Hosting.ConfigureServicesBuilder.<>c__DisplayClass9_0.<Invoke>g__Startup|0(IServiceCollection serviceCollection)
+   at Microsoft.AspNetCore.Hosting.ConfigureServicesBuilder.Invoke(Object instance, IServiceCollection services)
+   at Microsoft.AspNetCore.Hosting.ConfigureServicesBuilder.<>c__DisplayClass8_0.<Build>b__0(IServiceCollection services)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostBuilder.UseStartup(Type startupType, HostBuilderContext context, IServiceCollection services)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostBuilder.<>c__DisplayClass12_0.<UseStartup>b__0(HostBuilderContext context, IServiceCollection services)
+   at Microsoft.Extensions.Hosting.HostBuilder.CreateServiceProvider()
+   at Microsoft.Extensions.Hosting.HostBuilder.Build()
+   at Lemon.Account.Host.Program.Main(String[] args) in /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.Host/Program.cs:line 29
+2020-10-13 11:10:07.399 +08:00 [INF] Starting web host
+2020-10-13 11:10:10.235 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbMigrationsDbContext' using provider 'Pomelo.EntityFrameworkCore.MySql' with options: None
+2020-10-13 11:10:11.116 +08:00 [INF] Executed DbCommand (102ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE DATABASE `account`;
+2020-10-13 11:10:11.815 +08:00 [INF] Executed DbCommand (376ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE `__EFMigrationsHistory` (
+    `MigrationId` varchar(95) NOT NULL,
+    `ProductVersion` varchar(32) NOT NULL,
+    CONSTRAINT `PK___EFMigrationsHistory` PRIMARY KEY (`MigrationId`)
+);
+2020-10-13 11:10:12.128 +08:00 [INF] Executed DbCommand (82ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='account' AND TABLE_NAME='__EFMigrationsHistory';
+2020-10-13 11:10:12.184 +08:00 [INF] Executed DbCommand (36ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT `MigrationId`, `ProductVersion`
+FROM `__EFMigrationsHistory`
+ORDER BY `MigrationId`;
+2020-10-13 11:10:12.220 +08:00 [INF] Applying migration '20201013025922_InitialCreate'.
+2020-10-13 11:10:12.398 +08:00 [FTL] Host terminated unexpectedly
+Volo.Abp.AbpInitializationException: An error occurred during ConfigureServices phase of the module Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations.LemonAccountEntityFrameworkCoreDbMigrationsModule, Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null. See the inner exception for details.
+ ---> System.InvalidOperationException: A schema "account" has been set for an object of type "CreateTableOperation" with the name of "PermissionData". MySQL does not support the EF Core concept of schemas. Any schema property of any "MigrationOperation" must be null.
+   at Pomelo.EntityFrameworkCore.MySql.Migrations.MySqlMigrationsSqlGenerator.CheckSchema(MigrationOperation operation)
+   at Pomelo.EntityFrameworkCore.MySql.Migrations.MySqlMigrationsSqlGenerator.Generate(MigrationOperation operation, IModel model, MigrationCommandListBuilder builder)
+   at Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator.Generate(IReadOnlyList`1 operations, IModel model)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.GenerateUpSql(Migration migration)
+   at Pomelo.EntityFrameworkCore.MySql.Migrations.Internal.MySqlMigrator.GenerateUpSql(Migration migration)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.<>c__DisplayClass15_2.<GetMigrationCommandLists>b__2()
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.Migrate(String targetMigration)
+   at Pomelo.EntityFrameworkCore.MySql.Migrations.Internal.MySqlMigrator.Migrate(String targetMigration)
+   at Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.Migrate(DatabaseFacade databaseFacade)
+   at Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations.LemonAccountEntityFrameworkCoreDbMigrationsModule.ConfigureServices(ServiceConfigurationContext context) in /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations/LemonAccountEntityFrameworkCoreDbMigrationsModule.cs:line 25
+   at Volo.Abp.AbpApplicationBase.ConfigureServices()
+   --- End of inner exception stack trace ---
+   at Volo.Abp.AbpApplicationBase.ConfigureServices()
+   at Volo.Abp.AbpApplicationBase..ctor(Type startupModuleType, IServiceCollection services, Action`1 optionsAction)
+   at Volo.Abp.AbpApplicationWithExternalServiceProvider..ctor(Type startupModuleType, IServiceCollection services, Action`1 optionsAction)
+   at Volo.Abp.AbpApplicationFactory.Create(Type startupModuleType, IServiceCollection services, Action`1 optionsAction)
+   at Volo.Abp.AbpApplicationFactory.Create[TStartupModule](IServiceCollection services, Action`1 optionsAction)
+   at Microsoft.Extensions.DependencyInjection.ServiceCollectionApplicationExtensions.AddApplication[TStartupModule](IServiceCollection services, Action`1 optionsAction)
+   at Lemon.Account.Host.Startup.ConfigureServices(IServiceCollection services) in /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.Host/Startup.cs:line 17
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Object[] arguments, Signature sig, Boolean constructor, Boolean wrapExceptions)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at Microsoft.AspNetCore.Hosting.ConfigureServicesBuilder.InvokeCore(Object instance, IServiceCollection services)
+   at Microsoft.AspNetCore.Hosting.ConfigureServicesBuilder.<>c__DisplayClass9_0.<Invoke>g__Startup|0(IServiceCollection serviceCollection)
+   at Microsoft.AspNetCore.Hosting.ConfigureServicesBuilder.Invoke(Object instance, IServiceCollection services)
+   at Microsoft.AspNetCore.Hosting.ConfigureServicesBuilder.<>c__DisplayClass8_0.<Build>b__0(IServiceCollection services)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostBuilder.UseStartup(Type startupType, HostBuilderContext context, IServiceCollection services)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostBuilder.<>c__DisplayClass12_0.<UseStartup>b__0(HostBuilderContext context, IServiceCollection services)
+   at Microsoft.Extensions.Hosting.HostBuilder.CreateServiceProvider()
+   at Microsoft.Extensions.Hosting.HostBuilder.Build()
+   at Lemon.Account.Host.Program.Main(String[] args) in /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.Host/Program.cs:line 29
+2020-10-13 11:16:23.398 +08:00 [INF] Starting web host
+2020-10-13 11:16:24.942 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbMigrationsDbContext' using provider 'Pomelo.EntityFrameworkCore.MySql' with options: None
+2020-10-13 11:16:25.263 +08:00 [INF] Executed DbCommand (39ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='account' AND TABLE_NAME='__EFMigrationsHistory';
+2020-10-13 11:16:25.333 +08:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='account' AND TABLE_NAME='__EFMigrationsHistory';
+2020-10-13 11:16:25.373 +08:00 [INF] Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT `MigrationId`, `ProductVersion`
+FROM `__EFMigrationsHistory`
+ORDER BY `MigrationId`;
+2020-10-13 11:16:25.417 +08:00 [INF] Applying migration '20201013031547_InitialCreate'.
+2020-10-13 11:16:25.724 +08:00 [INF] Executed DbCommand (169ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE `PermissionData` (
+    `Id` char(36) NOT NULL,
+    `CreationTime` datetime(6) NOT NULL,
+    `CreatorId` char(36) NULL,
+    `LastModificationTime` datetime(6) NULL,
+    `LastModifierId` char(36) NULL,
+    `ParentId` char(36) NULL,
+    `Name` longtext CHARACTER SET utf8mb4 NULL,
+    `Permission` longtext CHARACTER SET utf8mb4 NULL,
+    CONSTRAINT `PK_PermissionData` PRIMARY KEY (`Id`)
+);
+2020-10-13 11:16:25.879 +08:00 [INF] Executed DbCommand (153ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE `RoleData` (
+    `Id` char(36) NOT NULL,
+    `ExtraProperties` longtext CHARACTER SET utf8mb4 NULL,
+    `ConcurrencyStamp` varchar(40) CHARACTER SET utf8mb4 NULL,
+    `CreationTime` datetime(6) NOT NULL,
+    `CreatorId` char(36) NULL,
+    `LastModificationTime` datetime(6) NULL,
+    `LastModifierId` char(36) NULL,
+    `Name` longtext CHARACTER SET utf8mb4 NULL,
+    CONSTRAINT `PK_RoleData` PRIMARY KEY (`Id`)
+);
+2020-10-13 11:16:26.055 +08:00 [INF] Executed DbCommand (175ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE `UserData` (
+    `Id` char(36) NOT NULL,
+    `ExtraProperties` longtext CHARACTER SET utf8mb4 NULL,
+    `ConcurrencyStamp` varchar(40) CHARACTER SET utf8mb4 NULL,
+    `CreationTime` datetime(6) NOT NULL,
+    `CreatorId` char(36) NULL,
+    `LastModificationTime` datetime(6) NULL,
+    `LastModifierId` char(36) NULL,
+    `Account` varchar(255) CHARACTER SET utf8mb4 NULL,
+    `NickName` longtext CHARACTER SET utf8mb4 NULL,
+    `HeadIcon` longtext CHARACTER SET utf8mb4 NULL,
+    `Mobile` varchar(255) CHARACTER SET utf8mb4 NULL,
+    `Email` varchar(255) CHARACTER SET utf8mb4 NULL,
+    `IsDeleted` tinyint(1) NOT NULL DEFAULT FALSE,
+    CONSTRAINT `PK_UserData` PRIMARY KEY (`Id`)
+);
+2020-10-13 11:16:26.204 +08:00 [INF] Executed DbCommand (128ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE `RolePermissionData` (
+    `RoleId` char(36) NOT NULL,
+    `Permission` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
+    CONSTRAINT `PK_RolePermissionData` PRIMARY KEY (`RoleId`, `Permission`),
+    CONSTRAINT `FK_RolePermissionData_RoleData_RoleId` FOREIGN KEY (`RoleId`) REFERENCES `RoleData` (`Id`) ON DELETE CASCADE
+);
+2020-10-13 11:16:26.354 +08:00 [INF] Executed DbCommand (149ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE `UserLogOn` (
+    `UserId` char(36) NOT NULL,
+    `Password` longtext CHARACTER SET utf8mb4 NULL,
+    `SecretKey` longtext CHARACTER SET utf8mb4 NULL,
+    `AllowStartTime` datetime(6) NOT NULL,
+    `AllowEndTime` datetime(6) NOT NULL,
+    `LockStartTime` datetime(6) NOT NULL,
+    `LockEndDate` datetime(6) NOT NULL,
+    `FirstVisitTime` datetime(6) NOT NULL,
+    `PreviousVisitTime` datetime(6) NOT NULL,
+    `LastVisitTime` datetime(6) NOT NULL,
+    `ChangPasswordDate` datetime(6) NOT NULL,
+    `MultiUserLogin` tinyint(1) NOT NULL,
+    `LogonCount` int NOT NULL,
+    `UserOnline` tinyint(1) NOT NULL,
+    CONSTRAINT `PK_UserLogOn` PRIMARY KEY (`UserId`),
+    CONSTRAINT `FK_UserLogOn_UserData_UserId` FOREIGN KEY (`UserId`) REFERENCES `UserData` (`Id`) ON DELETE CASCADE
+);
+2020-10-13 11:16:26.493 +08:00 [INF] Executed DbCommand (137ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE `UserRole` (
+    `Id` char(36) NOT NULL,
+    `ExtraProperties` longtext CHARACTER SET utf8mb4 NULL,
+    `ConcurrencyStamp` varchar(40) CHARACTER SET utf8mb4 NULL,
+    `CreationTime` datetime(6) NOT NULL,
+    `CreatorId` char(36) NULL,
+    `LastModificationTime` datetime(6) NULL,
+    `LastModifierId` char(36) NULL,
+    `UserId` char(36) NOT NULL,
+    `RoleId` char(36) NOT NULL,
+    CONSTRAINT `PK_UserRole` PRIMARY KEY (`Id`),
+    CONSTRAINT `FK_UserRole_RoleData_RoleId` FOREIGN KEY (`RoleId`) REFERENCES `RoleData` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `FK_UserRole_UserData_UserId` FOREIGN KEY (`UserId`) REFERENCES `UserData` (`Id`) ON DELETE CASCADE
+);
+2020-10-13 11:16:26.822 +08:00 [INF] Executed DbCommand (328ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX `IX_UserData_Account` ON `UserData` (`Account`);
+2020-10-13 11:16:26.951 +08:00 [INF] Executed DbCommand (127ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX `IX_UserData_Email` ON `UserData` (`Email`);
+2020-10-13 11:16:27.074 +08:00 [INF] Executed DbCommand (122ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX `IX_UserData_Mobile` ON `UserData` (`Mobile`);
+2020-10-13 11:16:27.221 +08:00 [INF] Executed DbCommand (146ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX `IX_UserRole_RoleId` ON `UserRole` (`RoleId`);
+2020-10-13 11:16:27.406 +08:00 [INF] Executed DbCommand (184ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX `IX_UserRole_UserId` ON `UserRole` (`UserId`);
+2020-10-13 11:16:27.517 +08:00 [INF] Executed DbCommand (110ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX `IX_UserRole_RoleId_UserId` ON `UserRole` (`RoleId`, `UserId`);
+2020-10-13 11:16:27.546 +08:00 [INF] Executed DbCommand (28ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
+VALUES ('20201013031547_InitialCreate', '3.1.8');
+2020-10-13 11:16:28.073 +08:00 [INF] User profile is available. Using '/Users/huangmingji/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2020-10-13 11:16:28.177 +08:00 [INF] Loaded ABP modules:
+2020-10-13 11:16:28.179 +08:00 [INF] - Volo.Abp.Validation.AbpValidationAbstractionsModule
+2020-10-13 11:16:28.180 +08:00 [INF] - Volo.Abp.VirtualFileSystem.AbpVirtualFileSystemModule
+2020-10-13 11:16:28.180 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationAbstractionsModule
+2020-10-13 11:16:28.180 +08:00 [INF] - Volo.Abp.Security.AbpSecurityModule
+2020-10-13 11:16:28.180 +08:00 [INF] - Volo.Abp.ObjectExtending.AbpObjectExtendingModule
+2020-10-13 11:16:28.180 +08:00 [INF] - Volo.Abp.Uow.AbpUnitOfWorkModule
+2020-10-13 11:16:28.181 +08:00 [INF] - Volo.Abp.Data.AbpDataModule
+2020-10-13 11:16:28.181 +08:00 [INF] - Volo.Abp.MultiTenancy.AbpMultiTenancyModule
+2020-10-13 11:16:28.181 +08:00 [INF] - Volo.Abp.Settings.AbpSettingsModule
+2020-10-13 11:16:28.181 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationModule
+2020-10-13 11:16:28.181 +08:00 [INF] - Volo.Abp.Validation.AbpValidationModule
+2020-10-13 11:16:28.181 +08:00 [INF] - Lemon.Account.Domain.Shared.LemonAccountDomainSharedModule
+2020-10-13 11:16:28.192 +08:00 [INF] - Volo.Abp.Timing.AbpTimingModule
+2020-10-13 11:16:28.196 +08:00 [INF] - Volo.Abp.Json.AbpJsonModule
+2020-10-13 11:16:28.196 +08:00 [INF] - Volo.Abp.Threading.AbpThreadingModule
+2020-10-13 11:16:28.196 +08:00 [INF] - Volo.Abp.Auditing.AbpAuditingModule
+2020-10-13 11:16:28.196 +08:00 [INF] - Volo.Abp.EventBus.AbpEventBusModule
+2020-10-13 11:16:28.196 +08:00 [INF] - Volo.Abp.Guids.AbpGuidsModule
+2020-10-13 11:16:28.196 +08:00 [INF] - Volo.Abp.ObjectMapping.AbpObjectMappingModule
+2020-10-13 11:16:28.198 +08:00 [INF] - Volo.Abp.Domain.AbpDddDomainModule
+2020-10-13 11:16:28.199 +08:00 [INF] - Lemon.Account.Domain.LemonAccountDomainModule
+2020-10-13 11:16:28.199 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.AbpEntityFrameworkCoreModule
+2020-10-13 11:16:28.199 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.MySQL.AbpEntityFrameworkCoreMySQLModule
+2020-10-13 11:16:28.201 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.MySQL.LemonAccountEntityFrameworkCoreModule
+2020-10-13 11:16:28.202 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations.LemonAccountEntityFrameworkCoreDbMigrationsModule
+2020-10-13 11:16:28.204 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationContractsModule
+2020-10-13 11:16:28.206 +08:00 [INF] - Lemon.Account.Application.Contracts.LemonAccountApplicationContractsModule
+2020-10-13 11:16:28.206 +08:00 [INF] - Volo.Abp.Authorization.AbpAuthorizationModule
+2020-10-13 11:16:28.206 +08:00 [INF] - Volo.Abp.Http.AbpHttpAbstractionsModule
+2020-10-13 11:16:28.206 +08:00 [INF] - Volo.Abp.Features.AbpFeaturesModule
+2020-10-13 11:16:28.212 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationModule
+2020-10-13 11:16:28.212 +08:00 [INF] - Volo.Abp.AutoMapper.AbpAutoMapperModule
+2020-10-13 11:16:28.213 +08:00 [INF] - Lemon.Account.Application.LemonAccountApplicationModule
+2020-10-13 11:16:28.213 +08:00 [INF] - Volo.Abp.Minify.AbpMinifyModule
+2020-10-13 11:16:28.213 +08:00 [INF] - Volo.Abp.Http.AbpHttpModule
+2020-10-13 11:16:28.214 +08:00 [INF] - Volo.Abp.UI.AbpUiModule
+2020-10-13 11:16:28.214 +08:00 [INF] - Volo.Abp.AspNetCore.AbpAspNetCoreModule
+2020-10-13 11:16:28.214 +08:00 [INF] - Volo.Abp.ApiVersioning.AbpApiVersioningAbstractionsModule
+2020-10-13 11:16:28.214 +08:00 [INF] - Volo.Abp.AspNetCore.Mvc.AbpAspNetCoreMvcContractsModule
+2020-10-13 11:16:28.214 +08:00 [INF] - Volo.Abp.GlobalFeatures.AbpGlobalFeaturesModule
+2020-10-13 11:16:28.214 +08:00 [INF] - Volo.Abp.AspNetCore.Mvc.AbpAspNetCoreMvcModule
+2020-10-13 11:16:28.214 +08:00 [INF] - Lemon.Account.HttpApi.LemonAccountHttpApiModule
+2020-10-13 11:16:28.214 +08:00 [INF] - Volo.Abp.Castle.AbpCastleCoreModule
+2020-10-13 11:16:28.214 +08:00 [INF] - Volo.Abp.Autofac.AbpAutofacModule
+2020-10-13 11:16:28.215 +08:00 [INF] - Volo.Abp.AspNetCore.Serilog.AbpAspNetCoreSerilogModule
+2020-10-13 11:16:28.215 +08:00 [INF] - Lemon.Account.Host.LemonAccountHostModule
+2020-10-13 11:16:29.023 +08:00 [INF] Initialized all ABP modules.
+2020-10-13 11:16:29.081 +08:00 [INF] Now listening on: http://localhost:5000
+2020-10-13 11:16:29.081 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2020-10-13 11:16:29.081 +08:00 [INF] Hosting environment: Development
+2020-10-13 11:16:29.081 +08:00 [INF] Content root path: /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.Host
+2020-10-13 11:16:47.675 +08:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/verify application/json-patch+json 37
+2020-10-13 11:16:47.718 +08:00 [INF] CORS policy execution failed.
+2020-10-13 11:16:47.720 +08:00 [INF] Request origin http://localhost:5000 does not have permission to access the resource.
+2020-10-13 11:16:47.899 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 11:16:47.916 +08:00 [INF] Executing endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.VerifyPasswordAsync (Lemon.Account.HttpApi)'
+2020-10-13 11:16:48.170 +08:00 [INF] Route matched with {action = "VerifyPassword", controller = "Account", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] VerifyPasswordAsync(Lemon.Account.Application.VerifyPasswordDto) on controller Lemon.Account.HttpApi.Controllers.AccountController (Lemon.Account.HttpApi).
+2020-10-13 11:16:48.416 +08:00 [ERR] ---------- RemoteServiceErrorInfo ----------
+{
+  "code": null,
+  "message": "An internal error occurred during your request!",
+  "details": null,
+  "data": {
+    "ActivatorChain": "Lemon.Account.HttpApi.Controllers.AccountController -> Lemon.Account.Applica2020-10-13 11:19:21.540 +08:00 [INF] Starting web host
+2020-10-13 11:19:21.930 +08:00 [FTL] Host terminated unexpectedly
+System.ArgumentException: Cyclic dependency found! Item: [AbpModuleDescriptor Lemon.Account.EntityFrameworkCore.MySQL.LemonAccountEntityFrameworkCoreModule]
+   at System.Collections.Generic.AbpListExtensions.SortByDependenciesVisit[T](T item, Func`2 getDependencies, List`1 sorted, Dictionary`2 visited)
+   at System.Collections.Generic.AbpListExtensions.SortByDependenciesVisit[T](T item, Func`2 getDependencies, List`1 sorted, Dictionary`2 visited)
+   at System.Collections.Generic.AbpListExtensions.SortByDependenciesVisit[T](T item, Func`2 getDependencies, List`1 sorted, Dictionary`2 visited)
+   at System.Collections.Generic.AbpListExtensions.SortByDependenciesVisit[T](T item, Func`2 getDependencies, List`1 sorted, Dictionary`2 visited)
+   at System.Collections.Generic.AbpListExtensions.SortByDependencies[T](IEnumerable`1 source, Func`2 getDependencies, IEqualityComparer`1 comparer)
+   at Volo.Abp.Modularity.ModuleLoader.SortByDependency(List`1 modules, Type startupModuleType)
+   at Volo.Abp.Modularity.ModuleLoader.LoadModules(IServiceCollection services, Type startupModuleType, PlugInSourceList plugInSources)
+   at Volo.Abp.AbpApplicationBase.LoadModules(IServiceCollection services, AbpApplicationCreationOptions options)
+   at Volo.Abp.AbpApplicationBase..ctor(Type startupModuleType, IServiceCollection services, Action`1 optionsAction)
+   at Volo.Abp.AbpApplicationWithExternalServiceProvider..ctor(Type startupModuleType, IServiceCollection services, Action`1 optionsAction)
+   at Volo.Abp.AbpApplicationFactory.Create(Type startupModuleType, IServiceCollection services, Action`1 optionsAction)
+   at Volo.Abp.AbpApplicationFactory.Create[TStartupModule](IServiceCollection services, Action`1 optionsAction)
+   at Microsoft.Extensions.DependencyInjection.ServiceCollectionApplicationExtensions.AddApplication[TStartupModule](IServiceCollection services, Action`1 optionsAction)
+   at Lemon.Account.Host.Startup.ConfigureServices(IServiceCollection services) in /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.Host/Startup.cs:line 17
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Object[] arguments, Signature sig, Boolean constructor, Boolean wrapExceptions)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at Microsoft.AspNetCore.Hosting.ConfigureServicesBuilder.InvokeCore(Object instance, IServiceCollection services)
+   at Microsoft.AspNetCore.Hosting.ConfigureServicesBuilder.<>c__DisplayClass9_0.<Invoke>g__Startup|0(IServiceCollection serviceCollection)
+   at Microsoft.AspNetCore.Hosting.ConfigureServicesBuilder.Invoke(Object instance, IServiceCollection services)
+   at Microsoft.AspNetCore.Hosting.ConfigureServicesBuilder.<>c__DisplayClass8_0.<Build>b__0(IServiceCollection services)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostBuilder.UseStartup(Type startupType, HostBuilderContext context, IServiceCollection services)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostBuilder.<>c__DisplayClass12_0.<UseStartup>b__0(HostBuilderContext context, IServiceCollection services)
+   at Microsoft.Extensions.Hosting.HostBuilder.CreateServiceProvider()
+   at Microsoft.Extensions.Hosting.HostBuilder.Build()
+   at Lemon.Account.Host.Program.Main(String[] args) in /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.Host/Program.cs:line 29
+2020-10-13 11:22:24.706 +08:00 [INF] Starting web host
+2020-10-13 11:22:26.939 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbMigrationsDbContext' using provider 'Pomelo.EntityFrameworkCore.MySql' with options: None
+2020-10-13 11:22:27.240 +08:00 [INF] Executed DbCommand (25ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='account' AND TABLE_NAME='__EFMigrationsHistory';
+2020-10-13 11:22:27.304 +08:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='account' AND TABLE_NAME='__EFMigrationsHistory';
+2020-10-13 11:22:27.348 +08:00 [INF] Executed DbCommand (12ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT `MigrationId`, `ProductVersion`
+FROM `__EFMigrationsHistory`
+ORDER BY `MigrationId`;
+2020-10-13 11:22:27.380 +08:00 [INF] No migrations were applied. The database is already up to date.
+2020-10-13 11:22:28.031 +08:00 [INF] User profile is available. Using '/Users/huangmingji/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2020-10-13 11:22:28.138 +08:00 [INF] Loaded ABP modules:
+2020-10-13 11:22:28.138 +08:00 [INF] - Volo.Abp.Validation.AbpValidationAbstractionsModule
+2020-10-13 11:22:28.138 +08:00 [INF] - Volo.Abp.VirtualFileSystem.AbpVirtualFileSystemModule
+2020-10-13 11:22:28.139 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationAbstractionsModule
+2020-10-13 11:22:28.139 +08:00 [INF] - Volo.Abp.Security.AbpSecurityModule
+2020-10-13 11:22:28.139 +08:00 [INF] - Volo.Abp.ObjectExtending.AbpObjectExtendingModule
+2020-10-13 11:22:28.139 +08:00 [INF] - Volo.Abp.Uow.AbpUnitOfWorkModule
+2020-10-13 11:22:28.139 +08:00 [INF] - Volo.Abp.Data.AbpDataModule
+2020-10-13 11:22:28.139 +08:00 [INF] - Volo.Abp.MultiTenancy.AbpMultiTenancyModule
+2020-10-13 11:22:28.139 +08:00 [INF] - Volo.Abp.Settings.AbpSettingsModule
+2020-10-13 11:22:28.139 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationModule
+2020-10-13 11:22:28.139 +08:00 [INF] - Volo.Abp.Validation.AbpValidationModule
+2020-10-13 11:22:28.139 +08:00 [INF] - Lemon.Account.Domain.Shared.LemonAccountDomainSharedModule
+2020-10-13 11:22:28.140 +08:00 [INF] - Volo.Abp.Timing.AbpTimingModule
+2020-10-13 11:22:28.140 +08:00 [INF] - Volo.Abp.Json.AbpJsonModule
+2020-10-13 11:22:28.140 +08:00 [INF] - Volo.Abp.Threading.AbpThreadingModule
+2020-10-13 11:22:28.146 +08:00 [INF] - Volo.Abp.Auditing.AbpAuditingModule
+2020-10-13 11:22:28.146 +08:00 [INF] - Volo.Abp.EventBus.AbpEventBusModule
+2020-10-13 11:22:28.146 +08:00 [INF] - Volo.Abp.Guids.AbpGuidsModule
+2020-10-13 11:22:28.146 +08:00 [INF] - Volo.Abp.ObjectMapping.AbpObjectMappingModule
+2020-10-13 11:22:28.146 +08:00 [INF] - Volo.Abp.Domain.AbpDddDomainModule
+2020-10-13 11:22:28.146 +08:00 [INF] - Lemon.Account.Domain.LemonAccountDomainModule
+2020-10-13 11:22:28.146 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.AbpEntityFrameworkCoreModule
+2020-10-13 11:22:28.147 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.MySQL.AbpEntityFrameworkCoreMySQLModule
+2020-10-13 11:22:28.147 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.MySQL.LemonAccountEntityFrameworkCoreModule
+2020-10-13 11:22:28.148 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations.LemonAccountEntityFrameworkCoreDbMigrationsModule
+2020-10-13 11:22:28.148 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationContractsModule
+2020-10-13 11:22:28.148 +08:00 [INF] - Lemon.Account.Application.Contracts.LemonAccountApplicationContractsModule
+2020-10-13 11:22:28.148 +08:00 [INF] - Volo.Abp.Authorization.AbpAuthorizationModule
+2020-10-13 11:22:28.156 +08:00 [INF] - Volo.Abp.Http.AbpHttpAbstractionsModule
+2020-10-13 11:22:28.156 +08:00 [INF] - Volo.Abp.Features.AbpFeaturesModule
+2020-10-13 11:22:28.156 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationModule
+2020-10-13 11:22:28.156 +08:00 [INF] - Volo.Abp.AutoMapper.AbpAutoMapperModule
+2020-10-13 11:22:28.156 +08:00 [INF] - Lemon.Account.Application.LemonAccountApplicationModule
+2020-10-13 2020-10-13 11:24:28.319 +08:00 [INF] Starting web host
+2020-10-13 11:24:30.988 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbMigrationsDbContext' using provider 'Pomelo.EntityFrameworkCore.MySql' with options: None
+2020-10-13 11:24:31.441 +08:00 [INF] Executed DbCommand (51ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='account' AND TABLE_NAME='__EFMigrationsHistory';
+2020-10-13 11:24:31.501 +08:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='account' AND TABLE_NAME='__EFMigrationsHistory';
+2020-10-13 11:24:31.540 +08:00 [INF] Executed DbCommand (12ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT `MigrationId`, `ProductVersion`
+FROM `__EFMigrationsHistory`
+ORDER BY `MigrationId`;
+2020-10-13 11:24:31.573 +08:00 [INF] No migrations were applied. The database is already up to date.
+2020-10-13 11:24:32.316 +08:00 [INF] User profile is available. Using '/Users/huangmingji/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2020-10-13 11:24:32.601 +08:00 [INF] Loaded ABP modules:
+2020-10-13 11:24:32.602 +08:00 [INF] - Volo.Abp.Validation.AbpValidationAbstractionsModule
+2020-10-13 11:24:32.606 +08:00 [INF] - Volo.Abp.VirtualFileSystem.AbpVirtualFileSystemModule
+2020-10-13 11:24:32.610 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationAbstractionsModule
+2020-10-13 11:24:32.629 +08:00 [INF] - Volo.Abp.Security.AbpSecurityModule
+2020-10-13 11:24:32.645 +08:00 [INF] - Volo.Abp.ObjectExtending.AbpObjectExtendingModule
+2020-10-13 11:24:32.645 +08:00 [INF] - Volo.Abp.Uow.AbpUnitOfWorkModule
+2020-10-13 11:24:32.645 +08:00 [INF] - Volo.Abp.Data.AbpDataModule
+2020-10-13 11:24:32.645 +08:00 [INF] - Volo.Abp.MultiTenancy.AbpMultiTenancyModule
+2020-10-13 11:24:32.645 +08:00 [INF] - Volo.Abp.Settings.AbpSettingsModule
+2020-10-13 11:24:32.646 +08:00 [INF] - Volo.Abp.Localization.AbpLocalizationModule
+2020-10-13 11:24:32.646 +08:00 [INF] - Volo.Abp.Validation.AbpValidationModule
+2020-10-13 11:24:32.646 +08:00 [INF] - Lemon.Account.Domain.Shared.LemonAccountDomainSharedModule
+2020-10-13 11:24:32.649 +08:00 [INF] - Volo.Abp.Timing.AbpTimingModule
+2020-10-13 11:24:32.649 +08:00 [INF] - Volo.Abp.Json.AbpJsonModule
+2020-10-13 11:24:32.649 +08:00 [INF] - Volo.Abp.Threading.AbpThreadingModule
+2020-10-13 11:24:32.649 +08:00 [INF] - Volo.Abp.Auditing.AbpAuditingModule
+2020-10-13 11:24:32.649 +08:00 [INF] - Volo.Abp.EventBus.AbpEventBusModule
+2020-10-13 11:24:32.649 +08:00 [INF] - Volo.Abp.Guids.AbpGuidsModule
+2020-10-13 11:24:32.650 +08:00 [INF] - Volo.Abp.ObjectMapping.AbpObjectMappingModule
+2020-10-13 11:24:32.650 +08:00 [INF] - Volo.Abp.Domain.AbpDddDomainModule
+2020-10-13 11:24:32.650 +08:00 [INF] - Lemon.Account.Domain.LemonAccountDomainModule
+2020-10-13 11:24:32.650 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.AbpEntityFrameworkCoreModule
+2020-10-13 11:24:32.650 +08:00 [INF] - Volo.Abp.EntityFrameworkCore.MySQL.AbpEntityFrameworkCoreMySQLModule
+2020-10-13 11:24:32.650 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.MySQL.LemonAccountEntityFrameworkCoreModule
+2020-10-13 11:24:32.650 +08:00 [INF] - Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations.LemonAccountEntityFrameworkCoreDbMigrationsModule
+2020-10-13 11:24:32.651 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationContractsModule
+2020-10-13 11:24:32.668 +08:00 [INF] - Lemon.Account.Application.Contracts.LemonAccountApplicationContractsModule
+2020-10-13 11:24:32.668 +08:00 [INF] - Volo.Abp.Authorization.AbpAuthorizationModule
+2020-10-13 11:24:32.668 +08:00 [INF] - Volo.Abp.Http.AbpHttpAbstractionsModule
+2020-10-13 11:24:32.668 +08:00 [INF] - Volo.Abp.Features.AbpFeaturesModule
+2020-10-13 11:24:32.668 +08:00 [INF] - Volo.Abp.Application.AbpDddApplicationModule
+2020-10-13 11:24:32.668 +08:00 [INF] - Volo.Abp.AutoMapper.AbpAutoMapperModule
+2020-10-13 11:24:32.669 +08:00 [INF] - Lemon.Account.Application.LemonAccountApplicationModule
+2020-10-13 11:24:32.671 +08:00 [INF] - Volo.Abp.Minify.AbpMinifyModule
+2020-10-13 11:24:32.672 +08:00 [INF] - Volo.Abp.Http.AbpHttpModule
+2020-10-13 11:24:32.672 +08:00 [INF] - Volo.Abp.UI.AbpUiModule
+2020-10-13 11:24:32.672 +08:00 [INF] - Volo.Abp.AspNetCore.AbpAspNetCoreModule
+2020-10-13 11:24:32.672 +08:00 [INF] - Volo.Abp.ApiVersioning.AbpApiVersioningAbstractionsModule
+2020-10-13 11:24:32.672 +08:00 [INF] - Volo.Abp.AspNetCore.Mvc.AbpAspNetCoreMvcContractsModule
+2020-10-13 11:24:32.672 +08:00 [INF] - Volo.Abp.GlobalFeatures.AbpGlobalFeaturesModule
+2020-10-13 11:24:32.672 +08:00 [INF] - Volo.Abp.AspNetCore.Mvc.AbpAspNetCoreMvcModule
+2020-10-13 11:24:32.672 +08:00 [INF] - Lemon.Account.HttpApi.LemonAccountHttpApiModule
+2020-10-13 11:24:32.672 +08:00 [INF] - Volo.Abp.Castle.AbpCastleCoreModule
+2020-10-13 11:24:32.672 +08:00 [INF] - Volo.Abp.Autofac.AbpAutofacModule
+2020-10-13 11:24:32.672 +08:00 [INF] - Volo.Abp.AspNetCore.Serilog.AbpAspNetCoreSerilogModule
+2020-10-13 11:24:32.672 +08:00 [INF] - Lemon.Account.Host.LemonAccountHostModule
+2020-10-13 11:24:33.564 +08:00 [INF] Initialized all ABP modules.
+2020-10-13 11:24:33.620 +08:00 [INF] Now listening on: http://localhost:5000
+2020-10-13 11:24:33.621 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2020-10-13 11:24:33.621 +08:00 [INF] Hosting environment: Development
+2020-10-13 11:24:33.621 +08:00 [INF] Content root path: /Users/huangmingji/projects/abp-samples/Best Practices/Lemon.Account/src/Lemon.Account.Host
+2020-10-13 11:25:49.462 +08:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/verify application/json-patch+json 37
+2020-10-13 11:25:49.496 +08:00 [INF] CORS policy execution failed.
+2020-10-13 11:25:49.497 +08:00 [INF] Request origin http://localhost:5000 does not have permission to access the resource.
+2020-10-13 11:25:49.665 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 11:25:49.670 +08:00 [INF] Executing endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.VerifyPasswordAsync (Lemon.Account.HttpApi)'
+2020-10-13 11:25:50.144 +08:00 [INF] Route matched with {action = "VerifyPassword", controller = "Account", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] VerifyPasswordAsync(Lemon.Account.Application.VerifyPasswordDto) on controller Lemon.Account.HttpApi.Controllers.AccountController (Lemon.Account.HttpApi).
+2020-10-13 11:25:50.603 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbContext' using provider 'Pomelo.EntityFrameworkCore.MySql' with options: None
+2020-10-13 11:25:51.253 +08:00 [INF] Executed DbCommand (164ms) [Parameters=[@__ef_filter__p_0='?' (DbType = Boolean), @__name_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT `t`.`Id`, `t`.`Account`, `t`.`ConcurrencyStamp`, `t`.`CreationTime`, `t`.`CreatorId`, `t`.`Email`, `t`.`ExtraProperties`, `t`.`HeadIcon`, `t`.`IsDeleted`, `t`.`LastModificationTime`, `t`.`LastModifierId`, `t`.`Mobile`, `t`.`NickName`, `t`.`UserId`, `t`.`AllowEndTime`, `t`.`AllowStartTime`, `t`.`ChangPasswordDate`, `t`.`FirstVisitTime`, `t`.`LastVisitTime`, `t`.`LockEndDate`, `t`.`LockStartTime`, `t`.`LogonCount`, `t`.`MultiUserLogin`, `t`.`Password`, `t`.`PreviousVisitTime`, `t`.`SecretKey`, `t`.`UserOnline`, `t0`.`Id`, `t0`.`ConcurrencyStamp`, `t0`.`CreationTime`, `t0`.`CreatorId`, `t0`.`ExtraProperties`, `t0`.`LastModificationTime`, `t0`.`LastModifierId`, `t0`.`RoleId`, `t0`.`UserId`, `t0`.`Id0`, `t0`.`ConcurrencyStamp0`, `t0`.`CreationTime0`, `t0`.`CreatorId0`, `t0`.`ExtraProperties0`, `t0`.`LastModificationTime0`, `t0`.`LastModifierId0`, `t0`.`Name`, `t0`.`RoleId0`, `t0`.`Permission`
+FROM (
+    SELECT `u`.`Id`, `u`.`Account`, `u`.`ConcurrencyStamp`, `u`.`CreationTime`, `u`.`CreatorId`, `u`.`Email`, `u`.`ExtraProperties`, `u`.`HeadIcon`, `u`.`IsDeleted`, `u`.`LastModificationTime`, `u`.`LastModifierId`, `u`.`Mobile`, `u`.`NickName`, `u0`.`UserId`, `u0`.`AllowEndTime`, `u0`.`AllowStartTime`, `u0`.`ChangPasswordDate`, `u0`.`FirstVisitTime`, `u0`.`LastVisitTime`, `u0`.`LockEndDate`, `u0`.`LockStartTime`, `u0`.`LogonCount`, `u0`.`MultiUserLogin`, `u0`.`Password`, `u0`.`PreviousVisitTime`, `u0`.`SecretKey`, `u0`.`UserOnline`
+    FROM `UserData` AS `u`
+    LEFT JOIN `UserLogOn` AS `u0` ON `u`.`Id` = `u0`.`UserId`
+    WHERE (@__ef_filter__p_0 OR NOT (`u`.`IsDeleted`)) AND (((`u`.`Account` = @__name_0) OR (`u`.`Mobile` = @__name_0)) OR (`u`.`Email` = @__name_0))
+    LIMIT 1
+) AS `t`
+LEFT JOIN (
+    SELECT `u1`.`Id`, `u1`.`ConcurrencyStamp`, `u1`.`CreationTime`, `u1`.`CreatorId`, `u1`.`ExtraProperties`, `u1`.`LastModificationTime`, `u1`.`LastModifierId`, `u1`.`RoleId`, `u1`.`UserId`, `r`.`Id` AS `Id0`, `r`.`ConcurrencyStamp` AS `ConcurrencyStamp0`, `r`.`CreationTime` AS `CreationTime0`, `r`.`CreatorId` AS `CreatorId0`, `r`.`ExtraProperties` AS `ExtraProperties0`, `r`.`LastModificationTime` AS `LastModificationTime0`, `r`.`LastModifierId` AS `LastModifierId0`, `r`.`Name`, `r0`.`RoleId` AS `RoleId0`, `r0`.`Permission`
+    FROM `UserRole` AS `u1`
+    INNER JOIN `RoleData` AS `r` ON `u1`.`RoleId` = `r`.`Id`
+    LEFT JOIN `RolePermissionData` AS `r0` ON `r`.`Id` = `r0`.`RoleId`
+) AS `t0` ON `t`.`Id` = `t0`.`UserId`
+ORDER BY `t`.`Id`, `t0`.`Id`, `t0`.`Id0`, `t0`.`RoleId0`, `t0`.`Permission`
+2020-10-13 11:25:51.337 +08:00 [INF] Executing ObjectResult, writing value of type 'Microsoft.AspNetCore.Mvc.ProblemDetails'.
+2020-10-13 11:25:51.418 +08:00 [INF] Executed action Lemon.Account.HttpApi.Controllers.AccountController.VerifyPasswordAsync (Lemon.Account.HttpApi) in 1265.0108ms
+2020-10-13 11:25:51.421 +08:00 [INF] Executed endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.VerifyPasswordAsync (Lemon.Account.HttpApi)'
+2020-10-13 11:25:51.428 +08:00 [INF] Request finished in 1973.021ms 404 application/json; charset=utf-8
+2020-10-13 11:25:59.453 +08:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/register application/json-patch+json 80
+2020-10-13 11:25:59.455 +08:00 [INF] CORS policy execution failed.
+2020-10-13 11:25:59.456 +08:00 [INF] Request origin http://localhost:5000 does not have permission to access the resource.
+2020-10-13 11:25:59.479 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 11:25:59.480 +08:00 [INF] Executing endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 11:25:59.494 +08:00 [INF] Route matched with {action = "Register", controller = "Account", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] RegisterAsync(Lemon.Account.Application.CreateUserDto) on controller Lemon.Account.HttpApi.Controllers.AccountController (Lemon.Account.HttpApi).
+2020-10-13 11:25:59.620 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbContext' using provider 'Pomelo.EntityFrameworkCore.MySql' with options: None
+2020-10-13 11:25:59.732 +08:00 [INF] Executed DbCommand (15ms) [Parameters=[@__ef_filter__p_0='?' (DbType = Boolean), @__email_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT `t`.`Id`, `t`.`Account`, `t`.`ConcurrencyStamp`, `t`.`CreationTime`, `t`.`CreatorId`, `t`.`Email`, `t`.`ExtraProperties`, `t`.`HeadIcon`, `t`.`IsDeleted`, `t`.`LastModificationTime`, `t`.`LastModifierId`, `t`.`Mobile`, `t`.`NickName`, `t`.`UserId`, `t`.`AllowEndTime`, `t`.`AllowStartTime`, `t`.`ChangPasswordDate`, `t`.`FirstVisitTime`, `t`.`LastVisitTime`, `t`.`LockEndDate`, `t`.`LockStartTime`, `t`.`LogonCount`, `t`.`MultiUserLogin`, `t`.`Password`, `t`.`PreviousVisitTime`, `t`.`SecretKey`, `t`.`UserOnline`, `t0`.`Id`, `t0`.`ConcurrencyStamp`, `t0`.`CreationTime`, `t0`.`CreatorId`, `t0`.`ExtraProperties`, `t0`.`LastModificationTime`, `t0`.`LastModifierId`, `t0`.`RoleId`, `t0`.`UserId`, `t0`.`Id0`, `t0`.`ConcurrencyStamp0`, `t0`.`CreationTime0`, `t0`.`CreatorId0`, `t0`.`ExtraProperties0`, `t0`.`LastModificationTime0`, `t0`.`LastModifierId0`, `t0`.`Name`, `t0`.`RoleId0`, `t0`.`Permission`
+FROM (
+    SELECT `u`.`Id`, `u`.`Account`, `u`.`ConcurrencyStamp`, `u`.`CreationTime`, `u`.`CreatorId`, `u`.`Email`, `u`.`ExtraProperties`, `u`.`HeadIcon`, `u`.`IsDeleted`, `u`.`LastModificationTime`, `u`.`LastModifierId`, `u`.`Mobile`, `u`.`NickName`, `u0`.`UserId`, `u0`.`AllowEndTime`, `u0`.`AllowStartTime`, `u0`.`ChangPasswordDate`, `u0`.`FirstVisitTime`, `u0`.`LastVisitTime`, `u0`.`LockEndDate`, `u0`.`LockStartTime`, `u0`.`LogonCount`, `u0`.`MultiUserLogin`, `u0`.`Password`, `u0`.`PreviousVisitTime`, `u0`.`SecretKey`, `u0`.`UserOnline`
+    FROM `UserData` AS `u`
+    LEFT JOIN `UserLogOn` AS `u0` ON `u`.`Id` = `u0`.`UserId`
+    WHERE (@__ef_filter__p_0 OR NOT (`u`.`IsDeleted`)) AND (`u`.`Email` = @__email_0)
+    LIMIT 2
+) AS `t`
+LEFT JOIN (
+    SELECT `u1`.`Id`, `u1`.`ConcurrencyStamp`, `u1`.`CreationTime`, `u1`.`CreatorId`, `u1`.`ExtraProperties`, `u1`.`LastModificationTime`, `u1`.`LastModifierId`, `u1`.`RoleId`, `u1`.`UserId`, `r`.`Id` AS `Id0`, `r`.`ConcurrencyStamp` AS `ConcurrencyStamp0`, `r`.`CreationTime` AS `CreationTime0`, `r`.`CreatorId` AS `CreatorId0`, `r`.`ExtraProperties` AS `ExtraProperties0`, `r`.`LastModificationTime` AS `LastModificationTime0`, `r`.`LastModifierId` AS `LastModifierId0`, `r`.`Name`, `r0`.`RoleId` AS `RoleId0`, `r0`.`Permission`
+    FROM `UserRole` AS `u1`
+    INNER JOIN `RoleData` AS `r` ON `u1`.`RoleId` = `r`.`Id`
+    LEFT JOIN `RolePermissionData` AS `r0` ON `r`.`Id` = `r0`.`RoleId`
+) AS `t0` ON `t`.`Id` = `t0`.`UserId`
+ORDER BY `t`.`Id`, `t0`.`Id`, `t0`.`Id0`, `t0`.`RoleId0`, `t0`.`Permission`
+2020-10-13 11:26:00.401 +08:00 [INF] Executed DbCommand (13ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 255), @p2='?' (Size = 40), @p3='?' (DbType = DateTime), @p4='?' (DbType = Guid), @p5='?' (Size = 255), @p6='?' (Size = 4000), @p7='?' (Size = 4000), @p8='?' (DbType = DateTime), @p9='?' (DbType = Guid), @p10='?' (Size = 255), @p11='?' (Size = 4000)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO `UserData` (`Id`, `Account`, `ConcurrencyStamp`, `CreationTime`, `CreatorId`, `Email`, `ExtraProperties`, `HeadIcon`, `LastModificationTime`, `LastModifierId`, `Mobile`, `NickName`)
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11);
+SELECT `IsDeleted`
+FROM `UserData`
+WHERE ROW_COUNT() = 1 AND `Id` = @p0;
+2020-10-13 11:26:00.434 +08:00 [INF] Executed DbCommand (6ms) [Parameters=[@p12='?' (DbType = Guid), @p13='?' (DbType = DateTime), @p14='?' (DbType = DateTime), @p15='?' (DbType = DateTime), @p16='?' (DbType = DateTime), @p17='?' (DbType = DateTime), @p18='?' (DbType = DateTime), @p19='?' (DbType = DateTime), @p20='?' (DbType = Int32), @p21='?' (DbType = Boolean), @p22='?' (Size = 4000), @p23='?' (DbType = DateTime), @p24='?' (Size = 4000), @p25='?' (DbType = Boolean)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO `UserLogOn` (`UserId`, `AllowEndTime`, `AllowStartTime`, `ChangPasswordDate`, `FirstVisitTime`, `LastVisitTime`, `LockEndDate`, `LockStartTime`, `LogonCount`, `MultiUserLogin`, `Password`, `PreviousVisitTime`, `SecretKey`, `UserOnline`)
+VALUES (@p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25);
+2020-10-13 11:26:00.487 +08:00 [INF] Executing ObjectResult, writing value of type 'Lemon.Account.Application.UserDto'.
+2020-10-13 11:26:00.511 +08:00 [INF] Executed action Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi) in 998.725ms
+2020-10-13 11:26:00.513 +08:00 [INF] Executed endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.RegisterAsync (Lemon.Account.HttpApi)'
+2020-10-13 11:26:00.514 +08:00 [INF] Request finished in 1061.8398ms 200 application/json; charset=utf-8
+2020-10-13 11:26:41.687 +08:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/account/verify application/json-patch+json 59
+2020-10-13 11:26:41.691 +08:00 [INF] CORS policy execution failed.
+2020-10-13 11:26:41.693 +08:00 [INF] Request origin http://localhost:5000 does not have permission to access the resource.
+2020-10-13 11:26:41.696 +08:00 [DBG] AuthenticationScheme: Bearer was not authenticated.
+2020-10-13 11:26:41.696 +08:00 [INF] Executing endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.VerifyPasswordAsync (Lemon.Account.HttpApi)'
+2020-10-13 11:26:41.699 +08:00 [INF] Route matched with {action = "VerifyPassword", controller = "Account", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] VerifyPasswordAsync(Lemon.Account.Application.VerifyPasswordDto) on controller Lemon.Account.HttpApi.Controllers.AccountController (Lemon.Account.HttpApi).
+2020-10-13 11:26:41.741 +08:00 [INF] Entity Framework Core 3.1.8 initialized 'AccountDbContext' using provider 'Pomelo.EntityFrameworkCore.MySql' with options: None
+2020-10-13 11:26:41.792 +08:00 [INF] Executed DbCommand (8ms) [Parameters=[@__ef_filter__p_0='?' (DbType = Boolean), @__name_0='?' (Size = 255)], CommandType='"Text"', CommandTimeout='30']
+SELECT `t`.`Id`, `t`.`Account`, `t`.`ConcurrencyStamp`, `t`.`CreationTime`, `t`.`CreatorId`, `t`.`Email`, `t`.`ExtraProperties`, `t`.`HeadIcon`, `t`.`IsDeleted`, `t`.`LastModificationTime`, `t`.`LastModifierId`, `t`.`Mobile`, `t`.`NickName`, `t`.`UserId`, `t`.`AllowEndTime`, `t`.`AllowStartTime`, `t`.`ChangPasswordDate`, `t`.`FirstVisitTime`, `t`.`LastVisitTime`, `t`.`LockEndDate`, `t`.`LockStartTime`, `t`.`LogonCount`, `t`.`MultiUserLogin`, `t`.`Password`, `t`.`PreviousVisitTime`, `t`.`SecretKey`, `t`.`UserOnline`, `t0`.`Id`, `t0`.`ConcurrencyStamp`, `t0`.`CreationTime`, `t0`.`CreatorId`, `t0`.`ExtraProperties`, `t0`.`LastModificationTime`, `t0`.`LastModifierId`, `t0`.`RoleId`, `t0`.`UserId`, `t0`.`Id0`, `t0`.`ConcurrencyStamp0`, `t0`.`CreationTime0`, `t0`.`CreatorId0`, `t0`.`ExtraProperties0`, `t0`.`LastModificationTime0`, `t0`.`LastModifierId0`, `t0`.`Name`, `t0`.`RoleId0`, `t0`.`Permission`
+FROM (
+    SELECT `u`.`Id`, `u`.`Account`, `u`.`ConcurrencyStamp`, `u`.`CreationTime`, `u`.`CreatorId`, `u`.`Email`, `u`.`ExtraProperties`, `u`.`HeadIcon`, `u`.`IsDeleted`, `u`.`LastModificationTime`, `u`.`LastModifierId`, `u`.`Mobile`, `u`.`NickName`, `u0`.`UserId`, `u0`.`AllowEndTime`, `u0`.`AllowStartTime`, `u0`.`ChangPasswordDate`, `u0`.`FirstVisitTime`, `u0`.`LastVisitTime`, `u0`.`LockEndDate`, `u0`.`LockStartTime`, `u0`.`LogonCount`, `u0`.`MultiUserLogin`, `u0`.`Password`, `u0`.`PreviousVisitTime`, `u0`.`SecretKey`, `u0`.`UserOnline`
+    FROM `UserData` AS `u`
+    LEFT JOIN `UserLogOn` AS `u0` ON `u`.`Id` = `u0`.`UserId`
+    WHERE (@__ef_filter__p_0 OR NOT (`u`.`IsDeleted`)) AND (((`u`.`Account` = @__name_0) OR (`u`.`Mobile` = @__name_0)) OR (`u`.`Email` = @__name_0))
+    LIMIT 1
+) AS `t`
+LEFT JOIN (
+    SELECT `u1`.`Id`, `u1`.`ConcurrencyStamp`, `u1`.`CreationTime`, `u1`.`CreatorId`, `u1`.`ExtraProperties`, `u1`.`LastModificationTime`, `u1`.`LastModifierId`, `u1`.`RoleId`, `u1`.`UserId`, `r`.`Id` AS `Id0`, `r`.`ConcurrencyStamp` AS `ConcurrencyStamp0`, `r`.`CreationTime` AS `CreationTime0`, `r`.`CreatorId` AS `CreatorId0`, `r`.`ExtraProperties` AS `ExtraProperties0`, `r`.`LastModificationTime` AS `LastModificationTime0`, `r`.`LastModifierId` AS `LastModifierId0`, `r`.`Name`, `r0`.`RoleId` AS `RoleId0`, `r0`.`Permission`
+    FROM `UserRole` AS `u1`
+    INNER JOIN `RoleData` AS `r` ON `u1`.`RoleId` = `r`.`Id`
+    LEFT JOIN `RolePermissionData` AS `r0` ON `r`.`Id` = `r0`.`RoleId`
+) AS `t0` ON `t`.`Id` = `t0`.`UserId`
+ORDER BY `t`.`Id`, `t0`.`Id`, `t0`.`Id0`, `t0`.`RoleId0`, `t0`.`Permission`
+2020-10-13 11:26:41.941 +08:00 [INF] Executing ObjectResult, writing value of type 'Lemon.Account.Application.UserDto'.
+2020-10-13 11:26:41.976 +08:00 [INF] Executed action Lemon.Account.HttpApi.Controllers.AccountController.VerifyPasswordAsync (Lemon.Account.HttpApi) in 275.4581ms
+2020-10-13 11:26:41.991 +08:00 [INF] Executed endpoint 'Lemon.Account.HttpApi.Controllers.AccountController.VerifyPasswordAsync (Lemon.Account.HttpApi)'
+2020-10-13 11:26:41.997 +08:00 [INF] Request finished in 309.3098ms 200 application/json; charset=utf-8
+2020-10-13 11:50:31.065 +08:00 [INF] Application is shutting down...
