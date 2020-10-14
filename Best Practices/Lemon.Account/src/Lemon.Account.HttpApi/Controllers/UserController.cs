@@ -50,10 +50,10 @@ namespace Lemon.Account.HttpApi.Controllers
         // [Authorize(AccountPermissions.User.Search)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedResultDto<UserDto>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public IActionResult GetByPage(int pageIndex, int pageSize, string name = null, 
+        public IActionResult Get(int pageIndex, int pageSize, string name = null, 
             string account = null, string email = null, string mobile = null)
         {
-            var result = _userService.GetByPage(pageIndex, pageSize, name, account, email, mobile);
+            var result = _userService.Get(pageIndex, pageSize, name, account, email, mobile);
             return Ok(result);
         }
         
@@ -77,7 +77,7 @@ namespace Lemon.Account.HttpApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateAsync(Guid id, UpdateUserDto data)
         {
-            var userDto = await _userService.UpdateUserAsync(id, data);
+            var userDto = await _userService.UpdateAsync(id, data);
             return Ok(userDto);
         }
         

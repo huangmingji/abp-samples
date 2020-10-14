@@ -8,9 +8,9 @@ namespace Lemon.Account.Application
     {
         Task<UserDto> CreateAsync(CreateUserDto data);
         
-        Task<UserDto> GetAsync(Guid userId);
+        Task<UserDto> GetAsync(Guid id);
         
-        PagedResultDto<UserDto> GetByPage(int pageIndex, 
+        PagedResultDto<UserDto> Get(int pageIndex, 
             int pageSize, string name = null, string account = null, 
             string email = null, string mobile= null);
 
@@ -22,21 +22,17 @@ namespace Lemon.Account.Application
 
         Task<UserDto> GetByAccountAsync(string account);
 
-        Task<UserDto> SelfModifyMobileAsync(SelfModifyMobileDto data);
+        Task<UserDto> UpdateMobileAsync(SelfModifyMobileDto data);
         
-        Task<UserDto> SelfModifyEmailAsync(SelfModifyEmailDto data);
+        Task<UserDto> UpdateEmailAsync(SelfModifyEmailDto data);
         
-        Task<UserDto> UpdateUserHeadIconAsync(SelfModifyHeadIconDto data);
+        Task<UserDto> UpdateHeadIconAsync(SelfModifyHeadIconDto data);
+        
+        Task<UserDto> UpdatePasswordAsync(SelfModifyPasswordDto data);
+        
+        Task<UserDto> VerifyAsync(VerifyPasswordDto data);
 
-        Task<UserDto> UpdateUserPasswordAsync(UpdateUserPasswordDto data);
-        
-        Task<UserDto> SelfModifyPasswordAsync(SelfModifyPasswordDto data);
-
-        Task<UserDto> UpdateUserRoleAsync(UpdateUserRoleDto data);
-        
-        Task<UserDto> VerifyPasswordAsync(VerifyPasswordDto data);
-
-        Task<UserDto> UpdateUserAsync(Guid id, UpdateUserDto data);
+        Task<UserDto> UpdateAsync(Guid id, UpdateUserDto data);
 
     }
 }

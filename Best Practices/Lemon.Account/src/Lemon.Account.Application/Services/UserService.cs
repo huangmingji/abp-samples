@@ -31,13 +31,13 @@ namespace Lemon.Account.Application
             return ObjectMapper.Map<UserData, UserDto>(userData);
         }
 
-        public async Task<UserDto> GetAsync(Guid userId)
+        public async Task<UserDto> GetAsync(Guid id)
         {
-            var userData = await _userRepository.GetAsync(userId);
+            var userData = await _userRepository.GetAsync(id);
             return ObjectMapper.Map<UserData, UserDto>(userData);
         }
 
-        public PagedResultDto<UserDto> GetByPage(int pageIndex, int pageSize, string name = null, 
+        public PagedResultDto<UserDto> Get(int pageIndex, int pageSize, string name = null, 
             string account = null, string email = null, string mobile = null)
         {
             var queryable = _userRepository.WithDetails();
@@ -78,70 +78,47 @@ namespace Lemon.Account.Application
 
         public async Task<UserDto> GetByMobileAsync(string mobile)
         {
-            var userData = await _userRepository.FindAsync(x=> x.Mobile == mobile);
-            if (userData == null) return null;
-            var userDataDto = ObjectMapper.Map<UserData, UserDto>(userData);
-            return userDataDto;
+            var userData = await _userRepository.GetAsync(x=> x.Mobile == mobile);
+            return ObjectMapper.Map<UserData, UserDto>(userData);
         }
 
         public async Task<UserDto> GetByEmailAsync(string email)
         {
-            var userData = await _userRepository.FindAsync(x=> x.Email == email);
-            if (userData == null) return null;
-            var userDataDto = ObjectMapper.Map<UserData, UserDto>(userData);
-            return userDataDto;
+            var userData = await _userRepository.GetAsync(x=> x.Email == email);
+            return ObjectMapper.Map<UserData, UserDto>(userData);
         }
 
         public async Task<UserDto> GetByAccountAsync(string account)
         {
-            var userData = await _userRepository.FindAsync(x=> x.Account == account);
-            if (userData == null) return null;
-            var userDataDto = ObjectMapper.Map<UserData, UserDto>(userData);
-            return userDataDto;
+            var userData = await _userRepository.GetAsync(x=> x.Account == account);
+            return ObjectMapper.Map<UserData, UserDto>(userData);
         }
 
-        public async Task<UserDto> SelfModifyMobileAsync(SelfModifyMobileDto data)
+        public async Task<UserDto> UpdateMobileAsync(SelfModifyMobileDto data)
         {
             var userData = await _userRepository.GetAsync(x => x.Id == CurrentUser.Id);
             userData.Mobile = data.Mobile;
-            userData.LastModifierId = CurrentUser.Id;
-            userData.LastModificationTime = DateTime.Now;
             var result = await _userRepository.UpdateAsync(userData);
             return ObjectMapper.Map<UserData, UserDto>(result);
         }
 
-        public async Task<UserDto> SelfModifyEmailAsync(SelfModifyEmailDto data)
+        public async Task<UserDto> UpdateEmailAsync(SelfModifyEmailDto data)
         {
             var userData = await _userRepository.GetAsync(x => x.Id == CurrentUser.Id);
             userData.Email = data.Email;
-            userData.LastModifierId = CurrentUser.Id;
-            userData.LastModificationTime = DateTime.Now;
             var result = await _userRepository.UpdateAsync(userData);
-            return ObjectMapper.Map<UserData, UserDto>(result);        }
+            return ObjectMapper.Map<UserData, UserDto>(result);
+        }
 
-        public async Task<UserDto> UpdateUserHeadIconAsync(SelfModifyHeadIconDto data)
+        public async Task<UserDto> UpdateHeadIconAsync(SelfModifyHeadIconDto data)
         {
             var userData = await _userRepository.GetAsync(x => x.Id == CurrentUser.Id);
             userData.HeadIcon = data.HeadIcon;
-            userData.LastModifierId = CurrentUser.Id;
-            userData.LastModificationTime = DateTime.Now;
             var result = await _userRepository.UpdateAsync(userData);
             return ObjectMapper.Map<UserData, UserDto>(result);
         }
 
-        public async Task<UserDto> UpdateUserPasswordAsync(UpdateUserPasswordDto data)
-        {
-            var userData = _userRepository.WithDetails().FirstOrDefault(x => x.Id == data.UserId);
-            if(userData == null) return null;
-
-            userData.UpdatePassword(data.Password);
-            userData.LastModifierId = CurrentUser.Id;
-            userData.LastModificationTime = DateTime.Now;
-            var result = await _userRepository.UpdateAsync(userData);
-            return ObjectMapper.Map<UserData, UserDto>(result);
-        }
-
-        public async Task<UserDto> SelfModifyPasswordAsync(SelfModifyPasswordDto data)
+        public async Task<UserDto> UpdatePasswordAsync(SelfModifyPasswordDto data)
         { 
             var userData = _userRepository.WithDetails().FirstOrDefault(x => x.Id == CurrentUser.Id);
             if(userData == null) return null;
@@ -152,25 +129,11 @@ namespace Lemon.Account.Application
             }
 
             userData.UpdatePassword(data.Password);
-            userData.LastModifierId = CurrentUser.Id;
-            userData.LastModificationTime = DateTime.Now;
             var result = await _userRepository.UpdateAsync(userData);
             return ObjectMapper.Map<UserData, UserDto>(result);
         }
 
-        public async Task<UserDto> UpdateUserRoleAsync(UpdateUserRoleDto data)
-        {
-            UserData userData = await _userRepository.GetAsync(data.UserId);
-            userData.UserRoles.Clear();
-            foreach (var item in data.RoleIds)
-            {
-                userData.AddRole(GuidGenerator.Create(), item);
-            }
-            var result = await _userRepository.UpdateAsync(userData);
-            return ObjectMapper.Map<UserData, UserDto>(result);
-        }
-
-        public async Task<UserDto> VerifyPasswordAsync(VerifyPasswordDto data)
+        public async Task<UserDto> VerifyAsync(VerifyPasswordDto data)
         {
             UserData userData = await _userRepository.GetAsync(data.Name);
             if (userData == null) return null;
@@ -182,7 +145,7 @@ namespace Lemon.Account.Application
             return null;
         }
 
-        public async Task<UserDto> UpdateUserAsync(Guid id, UpdateUserDto data)
+        public async Task<UserDto> UpdateAsync(Guid id, UpdateUserDto data)
         {
             UserData userData = await _userRepository.GetAsync(id);
             userData.NickName = data.Name;

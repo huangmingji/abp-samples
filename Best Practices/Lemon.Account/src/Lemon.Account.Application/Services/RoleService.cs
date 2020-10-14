@@ -46,7 +46,7 @@ namespace Lemon.Account.Application
 
         public async Task<RoleDto> UpdateAsync(Guid id ,UpdateRoleDto data)
         {
-            var roleData = await _roleRepository.FindAsync(x => x.Id == id);
+            var roleData = await _roleRepository.GetAsync(id);
             roleData.Name = data.Name;
             var result = await _roleRepository.UpdateAsync(roleData);
             return ObjectMapper.Map<RoleData, RoleDto>(roleData);

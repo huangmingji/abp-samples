@@ -91,6 +91,13 @@ namespace Lemon.Account.Host
             ConfigureAuthentication(context, configuration);
             ConfigureSwaggerServices(context);
             ConfigureCors(context, configuration);
+
+            Configure<AbpAspNetCoreMvcOptions>(options =>
+            {
+                options
+                    .ConventionalControllers
+                    .Create(typeof(LemonAccountApplicationModule).Assembly);
+            });
         }
 
         public override void OnApplicationInitialization(

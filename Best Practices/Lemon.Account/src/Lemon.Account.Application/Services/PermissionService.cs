@@ -34,7 +34,7 @@ namespace Lemon.Account.Application
 
         public async Task<PermissionDto> GetAsync(Guid id)
         {
-            var data = await _permissionRepository.FindAsync(x => x.Id == id);
+            var data = await _permissionRepository.GetAsync(x => x.Id == id);
             return ObjectMapper.Map<PermissionData, PermissionDto>(data);
         }
 
@@ -46,7 +46,7 @@ namespace Lemon.Account.Application
 
         public async Task<PermissionDto> UpdateAsync(Guid id, UpdatePermissionDto data)
         {
-            var permissionData = await _permissionRepository.FindAsync(x => x.Id == id);
+            var permissionData = await _permissionRepository.GetAsync(x => x.Id == id);
             permissionData.Name = data.Name;
             permissionData.Permission = data.Permission;
             var result = await _permissionRepository.UpdateAsync(permissionData);

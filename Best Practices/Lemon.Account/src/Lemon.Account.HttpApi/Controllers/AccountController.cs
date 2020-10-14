@@ -32,7 +32,7 @@ namespace Lemon.Account.HttpApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> VerifyPasswordAsync([FromBody]VerifyPasswordDto data)
         {
-            var result = await _userService.VerifyPasswordAsync(data);
+            var result = await _userService.VerifyAsync(data);
             if (result == null)
             {
                 return NotFound();
@@ -71,9 +71,9 @@ namespace Lemon.Account.HttpApi.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> SelfModifyMobileAsync([FromBody]SelfModifyMobileDto data)
+        public async Task<IActionResult> UpdateMobileAsync([FromBody]SelfModifyMobileDto data)
         {
-            var userDto = await _userService.SelfModifyMobileAsync(data);
+            var userDto = await _userService.UpdateMobileAsync(data);
             return Ok(userDto);
         }
 
@@ -83,9 +83,9 @@ namespace Lemon.Account.HttpApi.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateUserHeadIconAsync([FromBody]SelfModifyHeadIconDto data)
+        public async Task<IActionResult> UpdateHeadIconAsync([FromBody]SelfModifyHeadIconDto data)
         {
-            var userDto = await _userService.UpdateUserHeadIconAsync(data);
+            var userDto = await _userService.UpdateHeadIconAsync(data);
             return Ok(userDto);
         }
 
@@ -95,9 +95,9 @@ namespace Lemon.Account.HttpApi.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> SelfModifyPasswordAsync([FromBody]SelfModifyPasswordDto data)
+        public async Task<IActionResult> UpdatePasswordAsync([FromBody]SelfModifyPasswordDto data)
         {
-            var userDto = await _userService.SelfModifyPasswordAsync(data);
+            var userDto = await _userService.UpdatePasswordAsync(data);
             return Ok(userDto);
         }
     }
